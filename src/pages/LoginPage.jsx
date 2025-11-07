@@ -4,7 +4,7 @@ import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../common/SafeIcon';
 import { useAuth } from '../contexts/AuthContext';
 import { mockAPI } from '../services/mockAPI';
-
+import logo from '../assets/logo.png';
 const { FiUser, FiLock, FiEye, FiEyeOff, FiUsers, FiPhone, FiChevronDown } = FiIcons;
 
 const LoginPage = () => {
@@ -80,16 +80,17 @@ const LoginPage = () => {
         transition={{ duration: 0.5 }}
         className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md"
       >
-        <div className="text-center mb-8">
-          <motion.div
+        <div className="text-center mb-8 justify-center flex flex-col items-center">
+        <img src={logo} alt="" className='h-[200px]' />
+          {/* <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: "spring" }}
             className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4"
           >
             <SafeIcon icon={FiUsers} className="w-8 h-8 text-white" />
-          </motion.div>
-          <h1 className="text-2xl font-bold text-gray-900">Agency Dashboard</h1>
+          </motion.div> */}
+          <h1 className="text-2xl font-bold text-gray-900">BP Dashboard</h1>
           <p className="text-gray-600 mt-2">
             {isLogin ? 'Sign in to your account' : 'Create your account'}
           </p>

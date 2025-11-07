@@ -4,6 +4,7 @@ import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../common/SafeIcon';
 import { useAuth } from '../contexts/AuthContext';
 import ThemeToggle from './ThemeToggle';
+import logo from '../assets/logo.png';
 
 const { 
   FiHome, FiCheckSquare, FiBell, FiUsers, FiLogOut, FiUser, FiTrophy 
@@ -33,9 +34,10 @@ const Sidebar = ({ activeTab, setActiveTab, isAdmin }) => {
       <div className="p-6 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+            {/* <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
               <SafeIcon icon={FiUsers} className="w-6 h-6 text-white" />
-            </div>
+            </div> */}
+            <img src={logo} alt="Agency Hub Logo" className='h-12' />
             <div>
               <h1 className="text-lg font-bold text-gray-900 dark:text-white">Agency Hub</h1>
               <p className="text-sm text-gray-600 dark:text-gray-400">
