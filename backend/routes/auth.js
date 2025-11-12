@@ -9,6 +9,11 @@ router.post('/register', async (req, res) => {
   try {
     const { name, phone, department } = req.body;
 
+    // Validate input
+    if (!name || !phone || !department) {
+      return res.status(400).json({ error: 'Name, phone, and department are required' });
+    }
+
     // Check if user already exists
     const existingUser = await User.findOne({ phone });
     if (existingUser) {
@@ -39,6 +44,11 @@ router.post('/register', async (req, res) => {
     });
   } catch (error) {
     console.error('Registration error:', error);
+    // Handle validation errors
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({ error: messages.join(', ') });
+    }
     res.status(500).json({ error: 'Registration failed' });
   }
 });
@@ -48,27 +58,32 @@ router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
 
+    // Validate input
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password are required' });
+    }
+
     // Find user by name or phone
-    const user = await User.findOne({ 
-      $or: [{ name: username }, { phone: username }] 
+    const user = await User.findOne({
+      $or: [{ name: username }, { phone: username }]
     });
 
     if (!user) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // Check password (special case for admin)
-    const isMatch = user.role === 'admin' 
-      ? password === user.phone 
-      : await user.comparePassword(password);
+    // Check password using the comparePassword method
+    const isMatch = await user.comparePassword(password);
 
     if (!isMatch) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // Update last login
-    user.lastLogin = new Date();
-    await user.save();
+    // Update last login (use updateOne to avoid triggering password hash)
+    await User.updateOne(
+      { _id: user._id },
+      { $set: { lastLogin: new Date() } }
+    );
 
     // Generate JWT token
     const token = jwt.sign(
