@@ -28,9 +28,7 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: function() {
-      return this.role !== 'admin' || this.phone !== 'Admin@Password';
-    },
+    required: [true, 'Password is required'],
     minlength: [6, 'Password must be at least 6 characters']
   },
   completedTasks: {
@@ -70,7 +68,15 @@ userSchema.pre('save', async function(next) {
 
 // Method to check password
 userSchema.methods.comparePassword = async function(candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
+  try {
+    if (!candidatePassword || !this.password) {
+      return false;
+    }
+    return await bcrypt.compare(candidatePassword, this.password);
+  } catch (error) {
+    console.error('Password comparison error:', error);
+    return false;
+  }
 };
 
 // Method to get user profile without sensitive data
