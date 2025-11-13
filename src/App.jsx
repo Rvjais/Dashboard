@@ -5,7 +5,7 @@ import LoginPage from './pages/LoginPage';
 import AdminDashboard from './pages/AdminDashboard';
 import EmployeeDashboard from './pages/EmployeeDashboard';
 import LoadingSpinner from './components/LoadingSpinner';
-
+import ClientEnrollmentForm from './pages/ClientEnrollmentForm';
 function App() {
   const { user, loading } = useAuth();
 
@@ -18,6 +18,10 @@ function App() {
       <Route 
         path="/login" 
         element={user ? <Navigate to="/" replace /> : <LoginPage />} 
+      />
+      <Route 
+        path="/client-enroll" 
+        element= {<ClientEnrollmentForm />}
       />
       <Route 
         path="/" 

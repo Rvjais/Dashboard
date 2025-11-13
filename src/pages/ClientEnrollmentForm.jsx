@@ -1,406 +1,342 @@
-import { useEffect, useMemo, useState } from "react";
+import React, { useState } from 'react';
 
-/* ---------- tiny UI primitives (no extra libs) ---------- */
-const Label = ({ children, htmlFor, required }) => (
-  <label htmlFor={htmlFor} className="text-sm font-medium text-gray-800 dark:text-gray-100">
-    {children}{required && <span className="text-red-500"> *</span>}
-  </label>
-);
-
-const Input = ({ id, ...props }) => (
-  <input
-    id={id}
-    className="w-full rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 dark:text-gray-100"
-    {...props}
-  />
-);
-
-const Select = ({ id, children, ...props }) => (
-  <select
-    id={id}
-    className="w-full rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 dark:text-gray-100"
-    {...props}
-  >
-    {children}
-  </select>
-);
-
-const Textarea = ({ id, ...props }) => (
-  <textarea
-    id={id}
-    rows={3}
-    className="w-full rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 dark:text-gray-100"
-    {...props}
-  />
-);
-
-const Card = ({ children }) => (
-  <div className="rounded-2xl border border-gray-200/70 dark:border-white/10 bg-white/90 dark:bg-[#101216] shadow-sm">
-    {children}
-  </div>
-);
-
-/* ---------- top stepper ---------- */
-function Stepper({ steps = [], current = 0 }) {
-  return (
-    <div className="flex items-center gap-2 flex-wrap">
-      {steps.map((s, i) => {
-        const active = i === current;
-        const done = i < current;
-        return (
-          <div key={i} className="flex items-center gap-2">
-            <div
-              className={[
-                "h-7 w-7 shrink-0 rounded-full grid place-items-center text-xs font-semibold",
-                done
-                  ? "bg-green-600 text-white"
-                  : active
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-200 dark:bg-white/10 text-gray-700 dark:text-gray-200",
-              ].join(" ")}
-              title={s}
-            >
-              {i + 1}
-            </div>
-            {i < steps.length - 1 && (
-              <div className="h-[2px] w-6 md:w-10 bg-gray-300 dark:bg-white/10 rounded-full" />
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-/* ---------- the page ---------- */
-export default function OnboardingBasic() {
-  // Theme (optional)
-  const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "light");
-  useEffect(() => {
-    const r = document.documentElement;
-    if (theme === "dark") r.classList.add("dark");
-    else r.classList.remove("dark");
-    localStorage.setItem("theme", theme);
-  }, [theme]);
-
-  const steps = useMemo(
-    () => [
-      "Basic Info",
-      "Contacts",
-      "Business",
-      "Licenses",
-      "Operations",
-      "Docs",
-      "Branding",
-      "Services",
-      "Pricing",
-      "Team",
-      "Compliance",
-      "Review",
-      "Confirm",
-    ],
-    []
-  );
-
-  const [form, setForm] = useState({
-    clientName: "",
-    email: "",
-    phone: "",
-    address: "",
-    website: "",
-    gst: "",
-    pan: "",
-    state: "",
-    city: "",
-    pincode: "",
-    regType: "",
-    udyam: "",
-    // Healthcare licenses
-    medicalCouncil: "",
-    clinicLicense: "",
-    drugLicense: "",
-    nabh: "",
-    fssai: "",
-    bmwa: "",
-    // Business
-    industry: "Healthcare",
-    businessType: "",
-    monthlyBudget: "",
-    servicesConfirmed: true,
+const ClientEnrollmentForm = () => {
+  const [step, setStep] = useState(1);
+  const [formData, setFormData] = useState({
+    clientName: '',
+    primaryEmail: '',
+    phoneNumber: '',
+    businessAddress: '',
+    websiteUrl: '',
+    gstinNumber: '',
+    panNumber: '',
+    state: '',
+    city: '',
+    pincodeRegistrationType: '',
+    udyamNumber: '',
+    medicalRegistration: '',
+    clinicalLicence: '',
+    drugLicence: '',
+    nabhAccreditation: '',
+    fssaiLicence: '',
+    biomedicalWasteAuth: '',
+    industry: '',
+    healthcareBusinessType: '',
+    monthlyMarketingBudget: ''
   });
 
-  const change = (e) => setForm((s) => ({ ...s, [e.target.name]: e.target.value }));
-
-  const [errors, setErrors] = useState({});
-  const validate = () => {
-    const e = {};
-    if (!form.clientName.trim()) e.clientName = "Client name is required";
-    if (!/^\S+@\S+\.\S+$/.test(form.email)) e.email = "Enter a valid email";
-    if (!/^\+?\d{7,14}$/.test(form.phone.replace(/\s+/g, ""))) e.phone = "Enter a valid phone";
-    if (form.pincode && !/^\d{4,7}$/.test(form.pincode)) e.pincode = "Enter a valid PIN/ZIP";
-    if (form.gst && !/^[0-9A-Z]{15}$/.test(form.gst)) e.gst = "GST should be 15 characters";
-    if (form.pan && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(form.pan)) e.pan = "Invalid PAN format";
-    setErrors(e);
-    return Object.keys(e).length === 0;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
-  const [submitting, setSubmitting] = useState(false);
-  const submit = async (e) => {
-    e.preventDefault();
-    if (!validate()) return;
-    try {
-      setSubmitting(true);
-      const res = await fetch(import.meta.env.VITE_API_BASE + "/onboarding/basic", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-      if (!res.ok) throw new Error("Failed to submit");
-      // navigate to next step or show toast
-      alert("Saved! Proceeding to next step.");
-      // e.g. useNavigate()('/onboarding/contacts')
-    } catch (err) {
-      alert(err.message);
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  const nextStep = () => setStep(prev => prev + 1);
+  const prevStep = () => setStep(prev => prev - 1);
+
+  const FormField = ({ label, name, placeholder, type = 'text', required = false, isTextarea = false }) => (
+    <div className="mb-4">
+      <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        {label}
+        {required && <span className="text-red-600">*</span>}
+      </label>
+      {isTextarea ? (
+        <textarea
+          name={name}
+          placeholder={placeholder}
+          value={formData[name]}
+          onChange={handleChange}
+          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all"
+          rows="3"
+        />
+      ) : (
+        <input
+          type={type}
+          name={name}
+          placeholder={placeholder}
+          value={formData[name]}
+          onChange={handleChange}
+          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all"
+        />
+      )}
+    </div>
+  );
+
+  const FormSelect = ({ label, name, options, required = false }) => (
+    <div className="mb-4">
+      <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        {label}
+        {required && <span className="text-red-600">*</span>}
+      </label>
+      <select
+        name={name}
+        value={formData[name]}
+        onChange={handleChange}
+        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all"
+      >
+        <option value="">{options.placeholder}</option>
+        {options.items && options.items.map((opt, idx) => (
+          <option key={idx} value={opt}>{opt}</option>
+        ))}
+      </select>
+    </div>
+  );
+
+  const StepIndicator = () => (
+    <div className="flex items-center justify-center gap-2 sm:gap-4 mb-6 sm:mb-8">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="flex items-center">
+          <div className={`flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full font-semibold text-xs sm:text-sm transition-all ${
+            step === i 
+              ? 'bg-blue-600 text-white' 
+              : step > i 
+              ? 'bg-green-600 text-white' 
+              : 'bg-gray-300 text-gray-600 dark:bg-gray-600 dark:text-gray-300'
+          }`}>
+            {i}
+          </div>
+          {i < 3 && <div className={`w-8 h-0.5 sm:w-12 ${step > i ? 'bg-green-600' : 'bg-gray-300 dark:bg-gray-600'}`} />}
+        </div>
+      ))}
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#0b0c10] text-gray-900 dark:text-gray-100">
-      <div className="max-w-5xl mx-auto p-4 md:p-6 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-6 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6 lg:p-8">
+        <StepIndicator />
+
+        {/* Step 1: Basic Information & Business Details */}
+        {step === 1 && (
+          <>
+            <div className="mb-6 sm:mb-8">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2">Basic Information & Business Details</h1>
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                📁 File upload: <a href="#" className="text-blue-600 hover:underline break-words">Please upload max 3 files (logos, brand guidelines, marketing materials etc.)</a> to{' '}
+                <a href="mailto:fileupload@domain.com" className="text-blue-600 hover:underline break-words">fileupload@domain.com</a> with your user name & file subject line.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
+              <FormField label="Client Name" name="clientName" placeholder="Enter your business/client name" required />
+              <FormField label="Primary Email" name="primaryEmail" placeholder="your@email.com" type="email" required />
+              <div className="col-span-1">
+                <FormField label="Phone Number" name="phoneNumber" placeholder="+1 (555) 123-4567" required />
+              </div>
+              <div className="col-span-1 md:col-span-2">
+                <FormField label="Website URL" name="websiteUrl" placeholder="https://www.yourwebsite.com" />
+              </div>
+              <div className="col-span-1 md:col-span-2">
+                <FormField label="Business Address" name="businessAddress" placeholder="Full business address including city, state, and zip code" isTextarea />
+              </div>
+            </div>
+
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mt-6 sm:mt-8 mb-4">Indian Business Details</h2>
+            <div className="bg-orange-50 dark:bg-orange-900/20 p-4 sm:p-6 rounded-md mb-6 sm:mb-8 border border-orange-100 dark:border-orange-900/40">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                <FormField label="GSTIN (GST Identification Number)" name="gstinNumber" placeholder="22AAAAAA0000A1Z5" />
+                <FormField label="PAN Number" name="panNumber" placeholder="ABCDE1234F" />
+                <FormSelect
+                  label="State"
+                  name="state"
+                  options={{ placeholder: 'Select State' }}
+                />
+                <FormSelect
+                  label="City"
+                  name="city"
+                  options={{ placeholder: 'Select City' }}
+                />
+                <FormSelect
+                  label="PIN Code Registration Type"
+                  name="pincodeRegistrationType"
+                  options={{ placeholder: 'Select Registration Type' }}
+                />
+                <FormField label="Udyam Registration Number (MSME)" name="udyamNumber" placeholder="UDYAM-XX-00-000000" />
+              </div>
+            </div>
+                        <div className="mb-6 sm:mb-8">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2">Healthcare Licenses & Registrations</h1>
+            </div>
+
+            <div className="bg-orange-50 dark:bg-orange-900/20 p-4 sm:p-6 rounded-md mb-6 sm:mb-8 border border-orange-100 dark:border-orange-900/40">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                <FormField label="Medical Registration" name="medicalRegistration" placeholder="Medical Registration Number" />
+                <FormField label="Clinical Establishment License" name="clinicalLicence" placeholder="State Health Department License" />
+                <FormField label="Drug License (if applicable)" name="drugLicence" placeholder="Drug License Number" />
+                <FormField label="NABH/UCI Accreditation" name="nabhAccreditation" placeholder="NABH/UCI Accreditation Number" />
+                <FormField label="FSSAI License (if applicable)" name="fssaiLicence" placeholder="FSSAI License Number" />
+                <FormField label="Biomedical Waste Authorization" name="biomedicalWasteAuth" placeholder="Biomedical Waste Authorization Number" />
+              </div>
+            </div>
+
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mt-6 sm:mt-8 mb-4">Business Classification</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
+              <FormSelect
+                label="Industry"
+                name="industry"
+                options={{
+                  placeholder: 'Select Industry',
+                  items: ['Healthcare', 'Pharmacy', 'Diagnostic', 'Hospital', 'Clinic', 'Other']
+                }}
+                required
+              />
+              <FormSelect
+                label="Healthcare Business Type"
+                name="healthcareBusinessType"
+                options={{
+                  placeholder: 'Select Healthcare Business Type',
+                  items: ['Hospital', 'Clinic', 'Diagnostic Center', 'Pharmacy', 'Other']
+                }}
+                required
+              />
+              <FormSelect
+                label="Monthly Marketing Budget"
+                name="monthlyMarketingBudget"
+                options={{
+                  placeholder: 'Select budget range',
+                  items: ['₹0-₹50,000', '₹50,000-₹1,00,000', '₹1,00,000-₹5,00,000', '₹5,00,000+']
+                }}
+              />
+            </div>
+
+            <div className="flex justify-end gap-3 sm:gap-4">
+              <button
+                type="button"
+                onClick={nextStep}
+                className="px-4 sm:px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base font-medium rounded-lg transition-colors"
+              >
+                Next
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* Step 2: Healthcare Licenses & Registrations */}
+        {step === 2 && (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
+              <FormField label="Client Name" name="clientName" placeholder="Enter your business/client name" required />
+              <FormField label="Primary Email" name="primaryEmail" placeholder="your@email.com" type="email" required />
+              <div className="col-span-1">
+                <FormField label="Phone Number" name="phoneNumber" placeholder="+1 (555) 123-4567" required />
+              </div>
+              <div className="col-span-1 md:col-span-2">
+                <FormField label="Website URL" name="websiteUrl" placeholder="https://www.yourwebsite.com" />
+              </div>
+              <div className="col-span-1 md:col-span-2">
+                <FormField label="Business Address" name="businessAddress" placeholder="Full business address including city, state, and zip code" isTextarea />
+              </div>
+            </div>
+
+
+            <div className="flex flex-col-reverse sm:flex-row justify-between gap-3 sm:gap-4">
+              <button
+                type="button"
+                onClick={prevStep}
+                className="px-4 sm:px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 text-sm sm:text-base font-medium rounded-lg transition-colors"
+              >
+                Previous
+              </button>
+              <button
+                type="button"
+                onClick={nextStep}
+                className="px-4 sm:px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base font-medium rounded-lg transition-colors"
+              >
+                Next
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* Step 3: Review & Submit */}
+        {step === 3 && (
+          <>
+           <h1>Website & Technical Access</h1>
+
+           <div className="form  flex flex-col md:flex-row md:space-x-6 ">
+            <h2>Admin Panel URL</h2>
+            <FormField label="Website URL" name="websiteUrl" placeholder="https://www.yoursite.com/admin or cPanel URL" />
+            <h2>Username</h2>
+            <FormField label="Username" name="username" placeholder="Enter your admin panel username" />
+            <h2>Password</h2>
+            <FormField label="Password" name="password" placeholder="Enter your admin panel password" type="password" />
+           </div>
+            <div className="flex flex-col-reverse sm:flex-row justify-between gap-3 sm:gap-4">
+              <button
+                type="button"
+                onClick={prevStep}
+                className="px-4 sm:px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 text-sm sm:text-base font-medium rounded-lg transition-colors"
+              >
+                Previous
+              </button>
+            <button
+                type="button"
+                onClick={nextStep}
+                className="px-4 sm:px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 text-sm sm:text-base font-medium rounded-lg transition-colors"
+              >
+                Next
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* Step 4:  */}
+        {step === 4 &&(
+
+          <>
+          <h1>Google Services Access</h1>
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold">Basic Information & Business Details</h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Step 1 of onboarding
-            </p>
+            <h2>Google Access Requirement </h2>
+            <p>Please provid access to the following Google services by sharing with SEO team emails:</p>
+
+            <div className="whiteBox">
+              <h1>SEO Team Emails:</h1>
+              <ol>
+                <li>Seowithbp@gmail.com</li>
+                <li>Seobrandingpioneers@gmail.com</li>
+                <li>brandingpioneers@gmail.com</li>
+              </ol>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
+          <input type="checkbox" />
+          <div className="text-checkbox">
+            <h3>Google My Bussiness (GMB) Access</h3>
+            <p>Tutorial: <a href="https://youtu.be/LwgbdTrCI3A?si=5yQh_A6pthCfWqXA">How to give GMB Access</a></p>
+          </div>
+            <input type="checkbox" />
+          <div className="text-checkbox">
+            <h3>Google My Bussiness (GMB) Access</h3>
+            <p>Tutorial: <a href="https://youtu.be/LwgbdTrCI3A?si=5yQh_A6pthCfWqXA">How to give GMB Access</a></p>
+          </div>
+            <input type="checkbox" />
+          <div className="text-checkbox">
+            <h3>Google My Bussiness (GMB) Access</h3>
+            <p>Tutorial: <a href="https://youtu.be/LwgbdTrCI3A?si=5yQh_A6pthCfWqXA">How to give GMB Access</a></p>
+          </div>
+              <div className="flex flex-col-reverse sm:flex-row justify-between gap-3 sm:gap-4">
+              <button
+                type="button"
+                onClick={prevStep}
+                className="px-4 sm:px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 text-sm sm:text-base font-medium rounded-lg transition-colors"
+              >
+                Previous
+              </button>
             <button
-              onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
-              className="px-3 py-2 rounded-xl border border-gray-200 dark:border-white/10 bg-white/70 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 text-sm"
-            >
-              {theme === "dark" ? "🌞 Light" : "🌙 Dark"}
-            </button>
-            <a
-              href="/admin/tasks"
-              className="px-3 py-2 rounded-xl bg-purple-600 text-white text-sm hover:bg-purple-700"
-            >
-              Admin Tasks
-            </a>
-          </div>
-        </div>
-
-        {/* Stepper */}
-        <Card>
-          <div className="p-4 md:p-5">
-            <Stepper steps={steps} current={0} />
-          </div>
-        </Card>
-
-        {/* Info banner */}
-        <Card>
-          <div className="p-4 text-sm">
-            <span className="inline-flex items-center gap-2 px-2 py-1 rounded-lg bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300 mr-2">
-              ℹ️
-            </span>
-            For this step: Please email all brand files (logos, brand guidelines, marketing materials, etc.) to
-            <a href="mailto:files@yourdomain.com" className="underline ml-1">files@yourdomain.com</a>
-            {" "}with your client name in the subject line.
-          </div>
-        </Card>
-
-        {/* FORM */}
-        <form onSubmit={submit} className="space-y-6">
-          <Card>
-            <div className="p-5 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="clientName" required>Client Name</Label>
-                  <Input id="clientName" name="clientName" placeholder="Enter your business/client name"
-                         value={form.clientName} onChange={change} />
-                  {errors.clientName && <p className="text-xs text-red-600 mt-1">{errors.clientName}</p>}
-                </div>
-                <div>
-                  <Label htmlFor="email" required>Primary Email</Label>
-                  <Input id="email" name="email" type="email" placeholder="you@email.com"
-                         value={form.email} onChange={change} />
-                  {errors.email && <p className="text-xs text-red-600 mt-1">{errors.email}</p>}
-                </div>
-                <div>
-                  <Label htmlFor="phone" required>Phone Number</Label>
-                  <Input id="phone" name="phone" placeholder="+91 12345 12345"
-                         value={form.phone} onChange={change} />
-                  {errors.phone && <p className="text-xs text-red-600 mt-1">{errors.phone}</p>}
-                </div>
-                <div>
-                  <Label htmlFor="website">Website URL</Label>
-                  <Input id="website" name="website" placeholder="https://www.yourwebsite.com"
-                         value={form.website} onChange={change} />
-                </div>
-                <div className="md:col-span-2">
-                  <Label htmlFor="address">Business Address</Label>
-                  <Textarea id="address" name="address" placeholder="Full address including city, state, and zip code"
-                            value={form.address} onChange={change} />
-                </div>
-              </div>
+                type="button"
+                onClick={nextStep}
+                className="px-4 sm:px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 text-sm sm:text-base font-medium rounded-lg transition-colors"
+              >
+                Next
+              </button>
             </div>
-          </Card>
+          </>
 
-          {/* Indian Business Details */}
-          <Card>
-            <div className="p-5 space-y-4">
-              <h3 className="font-semibold flex items-center gap-2">🇮🇳 Indian Business Details</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="gst">GSTIN (if applicable)</Label>
-                  <Input id="gst" name="gst" placeholder="22AAAAA0000A1Z5" value={form.gst} onChange={change} />
-                  {errors.gst && <p className="text-xs text-red-600 mt-1">{errors.gst}</p>}
-                </div>
-                <div>
-                  <Label htmlFor="pan">PAN Number</Label>
-                  <Input id="pan" name="pan" placeholder="ABCDE1234F" value={form.pan} onChange={change} />
-                  {errors.pan && <p className="text-xs text-red-600 mt-1">{errors.pan}</p>}
-                </div>
-                <div>
-                  <Label htmlFor="state">State</Label>
-                  <Select id="state" name="state" value={form.state} onChange={change}>
-                    <option value="">Select State</option>
-                    {["Delhi","Uttar Pradesh","Maharashtra","Karnataka","Telangana","Tamil Nadu","West Bengal"].map(s=>(
-                      <option key={s} value={s}>{s}</option>
-                    ))}
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="city">City</Label>
-                  <Input id="city" name="city" placeholder="Select City" value={form.city} onChange={change} />
-                </div>
-                <div>
-                  <Label htmlFor="pincode">PIN Code</Label>
-                  <Input id="pincode" name="pincode" placeholder="110001" value={form.pincode} onChange={change} />
-                  {errors.pincode && <p className="text-xs text-red-600 mt-1">{errors.pincode}</p>}
-                </div>
-                <div>
-                  <Label htmlFor="regType">Business Registration Type</Label>
-                  <Select id="regType" name="regType" value={form.regType} onChange={change}>
-                    <option value="">Select Registration Type</option>
-                    <option value="sole">Sole Proprietorship</option>
-                    <option value="partnership">Partnership</option>
-                    <option value="pvt">Private Limited</option>
-                    <option value="llp">LLP</option>
-                    <option value="opc">OPC</option>
-                    <option value="ngo">NGO / Society</option>
-                  </Select>
-                </div>
-                <div className="md:col-span-2">
-                  <Label htmlFor="udyam">Udyam Registration Number (MSME)</Label>
-                  <Input id="udyam" name="udyam" placeholder="UDYAM-XX-00-0000000" value={form.udyam} onChange={change} />
-                </div>
-              </div>
-            </div>
-          </Card>
-
-          {/* Healthcare Licenses & Registrations */}
-          <Card>
-            <div className="p-5 space-y-4">
-              <h3 className="font-semibold">🏥 Healthcare Licenses & Registrations</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="medicalCouncil">Medical Council Registration</Label>
-                  <Input id="medicalCouncil" name="medicalCouncil" value={form.medicalCouncil} onChange={change} placeholder="MCI/State Medical Council Number" />
-                </div>
-                <div>
-                  <Label htmlFor="clinicLicense">Clinical Establishment License</Label>
-                  <Input id="clinicLicense" name="clinicLicense" value={form.clinicLicense} onChange={change} placeholder="State Health Department License" />
-                </div>
-                <div>
-                  <Label htmlFor="drugLicense">Drug License (if applicable)</Label>
-                  <Input id="drugLicense" name="drugLicense" value={form.drugLicense} onChange={change} placeholder="Wholesale / Retail DL" />
-                </div>
-                <div>
-                  <Label htmlFor="nabh">NABH/NAccreditation</Label>
-                  <Input id="nabh" name="nabh" value={form.nabh} onChange={change} placeholder="NABH/QCI Accreditation Number" />
-                </div>
-                <div>
-                  <Label htmlFor="fssai">FSSAI License (if applicable)</Label>
-                  <Input id="fssai" name="fssai" value={form.fssai} onChange={change} placeholder="FSSAI License Number" />
-                </div>
-                <div>
-                  <Label htmlFor="bmwa">Biomedical Waste Authorization</Label>
-                  <Input id="bmwa" name="bmwa" value={form.bmwa} onChange={change} placeholder="BMW Authorization Number" />
-                </div>
-              </div>
-            </div>
-          </Card>
-
-          {/* Business */}
-          <Card>
-            <div className="p-5 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="industry">Industry</Label>
-                  <Select id="industry" name="industry" value={form.industry} onChange={change}>
-                    {["Healthcare","Pharma","Diagnostics","Dental","Wellness","Other"].map(x=>
-                      <option key={x} value={x}>{x}</option>
-                    )}
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="businessType">Healthcare Business Type</Label>
-                  <Select id="businessType" name="businessType" value={form.businessType} onChange={change}>
-                    <option value="">Select Healthcare Business Type</option>
-                    <option value="hospital">Hospital</option>
-                    <option value="clinic">Clinic / Polyclinic</option>
-                    <option value="lab">Diagnostic / Path Lab</option>
-                    <option value="imaging">Imaging Centre</option>
-                    <option value="doctor">Individual Doctor</option>
-                    <option value="wellness">Wellness / Fitness</option>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="monthlyBudget">Monthly Marketing Budget</Label>
-                  <Select id="monthlyBudget" name="monthlyBudget" value={form.monthlyBudget} onChange={change}>
-                    <option value="">Select budget range</option>
-                    <option value="25-50k">₹25k–₹50k</option>
-                    <option value="50-100k">₹50k–₹1L</option>
-                    <option value="100-200k">₹1L–₹2L</option>
-                    <option value="200k+">₹2L+</option>
-                  </Select>
-                </div>
-              </div>
-            </div>
-          </Card>
-
-          {/* Services Confirmed */}
-          <Card>
-            <div className="p-5 text-sm text-emerald-700 dark:text-emerald-300 bg-emerald-50/60 dark:bg-emerald-500/10 rounded-2xl">
-              ✅ <span className="font-medium">Services Confirmed:</span> Your purchased services have been confirmed.
-              This onboarding will help us gather the information needed to deliver specific services efficiently.
-            </div>
-          </Card>
-
-          {/* Footer actions */}
-          <div className="flex items-center justify-end gap-3">
-            <button
-              type="button"
-              onClick={() => window.history.back()}
-              className="px-4 py-2 rounded-xl border border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 text-sm"
-            >
-              Back
-            </button>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm disabled:opacity-60"
-            >
-              {submitting ? "Saving…" : "Next"}
-            </button>
-          </div>
-        </form>
+        )}
       </div>
     </div>
   );
-}
+};
+
+export default ClientEnrollmentForm;

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../common/SafeIcon';
@@ -7,7 +8,7 @@ import ThemeToggle from './ThemeToggle';
 import logo from '../assets/logo.png';
 
 const { 
-  FiHome, FiCheckSquare, FiBell, FiUsers, FiLogOut, FiUser, FiTrophy 
+  FiHome, FiCheckSquare, FiBell, FiUsers, FiLogOut, FiUser, FiTrophy, FiUserPlus 
 } = FiIcons;
 
 const Sidebar = ({ activeTab, setActiveTab, isAdmin }) => {
@@ -24,7 +25,8 @@ const Sidebar = ({ activeTab, setActiveTab, isAdmin }) => {
     { id: 'overview', label: 'Overview', icon: FiHome },
     { id: 'my-tasks', label: 'My Tasks', icon: FiCheckSquare },
     { id: 'departments', label: 'Departments', icon: FiUsers },
-    { id: 'leaderboard', label: 'Leaderboard', icon: FiTrophy }
+    { id: 'leaderboard', label: 'Leaderboard', icon: FiTrophy },
+   
   ];
 
   const tabs = isAdmin ? adminTabs : employeeTabs;
@@ -69,6 +71,13 @@ const Sidebar = ({ activeTab, setActiveTab, isAdmin }) => {
           ))}
         </ul>
       </nav>
+
+ <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+        <Link to="/client-enroll" className="w-full flex items-center gap-3 px-4 py-3 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors no-underline">
+          <SafeIcon icon={FiUserPlus} className="w-5 h-5" />
+          Client Enrollment
+        </Link>
+      </div>
 
       <div className="p-4 border-t border-gray-200 dark:border-gray-700">
         <motion.button
