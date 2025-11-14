@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../common/SafeIcon';
 import { useAuth } from '../contexts/AuthContext';
-import { mockAPI } from '../services/mockAPI';
+import { api } from '../services/api';
 import logo from '../assets/logo.png';
 const { FiUser, FiLock, FiEye, FiEyeOff, FiUsers, FiPhone, FiChevronDown } = FiIcons;
 
@@ -29,10 +29,11 @@ const LoginPage = () => {
   React.useEffect(() => {
     const fetchDepartments = async () => {
       try {
-        const depts = await mockAPI.getDepartments();
-        setDepartments(depts);
+        const response = await api.getDepartments();
+        setDepartments(response);
       } catch (err) {
         console.error('Failed to fetch departments:', err);
+        setError('Failed to load departments');
       }
     };
     fetchDepartments();

@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../common/SafeIcon';
 import { useAuth } from '../contexts/AuthContext';
-import { mockAPI } from '../services/mockAPI';
+import { api } from '../services/api';
 import Sidebar from '../components/Sidebar';
 import TopBar from '../components/TopBar';
 import StatsCard from '../components/StatsCard';
@@ -37,9 +37,9 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
       const [tasksData, statsData, announcementsData] = await Promise.all([
-        mockAPI.getTasks(user.id, user.role, user.department),
-        mockAPI.getDashboardStats(user.role, user.department),
-        mockAPI.getAnnouncements()
+        api.getTasks(),
+        api.getTaskStats(),
+        api.getAnnouncements()
       ]);
       
       setTasks(tasksData);
@@ -54,7 +54,7 @@ const AdminDashboard = () => {
 
   const handleTaskCreate = async (taskData) => {
     try {
-      await mockAPI.createTask(taskData);
+      await api.createTask(taskData);
       fetchDashboardData();
       setShowTaskModal(false);
     } catch (error) {
@@ -64,7 +64,7 @@ const AdminDashboard = () => {
 
   const handleTaskUpdate = async (taskId, updates) => {
     try {
-      await mockAPI.updateTask(taskId, updates);
+      await api.updateTask(taskId, updates);
       fetchDashboardData();
       setEditingTask(null);
     } catch (error) {
@@ -74,7 +74,7 @@ const AdminDashboard = () => {
 
   const handleTaskDelete = async (taskId) => {
     try {
-      await mockAPI.deleteTask(taskId);
+      await api.deleteTask(taskId);
       fetchDashboardData();
     } catch (error) {
       console.error('Failed to delete task:', error);
@@ -83,7 +83,7 @@ const AdminDashboard = () => {
 
   const handleAnnouncementCreate = async (announcementData) => {
     try {
-      await mockAPI.createAnnouncement(announcementData);
+      await api.createAnnouncement(announcementData);
       fetchDashboardData();
       setShowAnnouncementModal(false);
     } catch (error) {

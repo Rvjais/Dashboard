@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../common/SafeIcon';
 import { useAuth } from '../contexts/AuthContext';
-import { mockAPI } from '../services/mockAPI';
+import { api } from '../services/api';
 import Sidebar from '../components/Sidebar';
 import TopBar from '../components/TopBar';
 import StatsCard from '../components/StatsCard';
@@ -34,9 +34,9 @@ const EmployeeDashboard = () => {
     try {
       setLoading(true);
       const [tasksData, statsData, announcementsData] = await Promise.all([
-        mockAPI.getTasks(user.id, user.role, user.department),
-        mockAPI.getDashboardStats(user.role, user.department),
-        mockAPI.getAnnouncements()
+        api.getTasks(),
+        api.getTaskStats(),
+        api.getAnnouncements()
       ]);
       
       setTasks(tasksData);
@@ -53,12 +53,9 @@ const EmployeeDashboard = () => {
     try {
       const newTaskData = {
         ...taskData,
-        department: user.department,
-        assignedBy: user.name,
-        assignedTo: user.name,
         status: 'Pending'
       };
-      await mockAPI.createTask(newTaskData);
+      await api.createTask(newTaskData);
       fetchDashboardData();
       setShowTaskModal(false);
     } catch (error) {
@@ -68,7 +65,7 @@ const EmployeeDashboard = () => {
 
   const handleTaskUpdate = async (taskId, updates) => {
     try {
-      await mockAPI.updateTask(taskId, updates);
+      await api.updateTask(taskId, updates);
       fetchDashboardData();
       setEditingTask(null);
     } catch (error) {

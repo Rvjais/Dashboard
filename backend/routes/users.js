@@ -24,10 +24,10 @@ router.get('/', auth, adminAuth, async (req, res) => {
   }
 });
 
-// Get departments list
-router.get('/departments', auth, async (req, res) => {
+// Get departments list (public - no auth required)
+router.get('/departments', async (req, res) => {
   try {
-    const departments = ['Web', 'SEO', 'Ads', 'Graphics', 'Accounts'];
+    const departments = ['Web','AI', 'SEO', 'Ads', 'Graphics', 'Accounts', 'Admin', 'HR'];
     res.json(departments);
   } catch (error) {
     console.error('Get departments error:', error);

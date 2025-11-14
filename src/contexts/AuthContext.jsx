@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { mockAPI } from '../services/mockAPI';
+import { api } from '../services/api';
 
 const AuthContext = createContext();
 
@@ -30,9 +30,8 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     try {
-      const userData = await mockAPI.login(credentials);
-      setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
+      const response = await api.login(credentials);
+      setUser(response.user);
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
@@ -41,9 +40,8 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      const newUser = await mockAPI.register(userData);
-      setUser(newUser);
-      localStorage.setItem('user', JSON.stringify(newUser));
+      const response = await api.register(userData);
+      setUser(response.user);
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
@@ -52,7 +50,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('user');
+    api.logout();
   };
 
   const value = {
@@ -67,5 +65,6 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
+    
   );
 };

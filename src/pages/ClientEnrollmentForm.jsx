@@ -22,15 +22,35 @@ const ClientEnrollmentForm = () => {
     biomedicalWasteAuth: '',
     industry: '',
     healthcareBusinessType: '',
-    monthlyMarketingBudget: ''
+    monthlyMarketingBudget: '',
+    adminPanelUrl: '',
+    username: '',
+    password: '',
+    previousSeoReport: '',
+    seoRemarks: '',
+    investmentInSeoProcess: '',
+    advertisingPlatforms: [],
+    paidAdvertisingInvestmentLevel: '',
+    adManagementInvestmentLevel: '',
+    targetLocationsForAds: '',
+    adRemarks: ''
   });
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    const { name, value, type, checked } = e.target;
+    if (type === 'checkbox') {
+      setFormData(prev => ({
+        ...prev,
+        [name]: checked
+          ? [...(prev[name] || []), value]
+          : (prev[name] || []).filter(item => item !== value)
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const nextStep = () => setStep(prev => prev + 1);
@@ -85,10 +105,10 @@ const ClientEnrollmentForm = () => {
   );
 
   const StepIndicator = () => (
-    <div className="flex items-center justify-center gap-2 sm:gap-4 mb-6 sm:mb-8">
-      {[1, 2, 3].map((i) => (
-        <div key={i} className="flex items-center">
-          <div className={`flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full font-semibold text-xs sm:text-sm transition-all ${
+    <div className="flex items-center justify-center gap-1 sm:gap-2 mb-6 sm:mb-8 overflow-x-auto pb-2">
+      {[1, 2, 3, 4, 5].map((i) => (
+        <div key={i} className="flex items-center flex-shrink-0">
+          <div className={`flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9 rounded-full font-semibold text-xs sm:text-sm transition-all ${
             step === i 
               ? 'bg-blue-600 text-white' 
               : step > i 
@@ -97,7 +117,7 @@ const ClientEnrollmentForm = () => {
           }`}>
             {i}
           </div>
-          {i < 3 && <div className={`w-8 h-0.5 sm:w-12 ${step > i ? 'bg-green-600' : 'bg-gray-300 dark:bg-gray-600'}`} />}
+          {i < 5 && <div className={`w-6 h-0.5 sm:w-10 flex-shrink-0 ${step > i ? 'bg-green-600' : 'bg-gray-300 dark:bg-gray-600'}`} />}
         </div>
       ))}
     </div>
@@ -156,7 +176,23 @@ const ClientEnrollmentForm = () => {
                 <FormField label="Udyam Registration Number (MSME)" name="udyamNumber" placeholder="UDYAM-XX-00-000000" />
               </div>
             </div>
-                        <div className="mb-6 sm:mb-8">
+
+            <div className="flex justify-end gap-3 sm:gap-4">
+              <button
+                type="button"
+                onClick={nextStep}
+                className="px-4 sm:px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base font-medium rounded-lg transition-colors"
+              >
+                Next
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* Step 2: Healthcare Licenses & Registrations */}
+        {step === 2 && (
+          <>
+            <div className="mb-6 sm:mb-8">
               <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2">Healthcare Licenses & Registrations</h1>
             </div>
 
@@ -201,36 +237,6 @@ const ClientEnrollmentForm = () => {
               />
             </div>
 
-            <div className="flex justify-end gap-3 sm:gap-4">
-              <button
-                type="button"
-                onClick={nextStep}
-                className="px-4 sm:px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base font-medium rounded-lg transition-colors"
-              >
-                Next
-              </button>
-            </div>
-          </>
-        )}
-
-        {/* Step 2: Healthcare Licenses & Registrations */}
-        {step === 2 && (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
-              <FormField label="Client Name" name="clientName" placeholder="Enter your business/client name" required />
-              <FormField label="Primary Email" name="primaryEmail" placeholder="your@email.com" type="email" required />
-              <div className="col-span-1">
-                <FormField label="Phone Number" name="phoneNumber" placeholder="+1 (555) 123-4567" required />
-              </div>
-              <div className="col-span-1 md:col-span-2">
-                <FormField label="Website URL" name="websiteUrl" placeholder="https://www.yourwebsite.com" />
-              </div>
-              <div className="col-span-1 md:col-span-2">
-                <FormField label="Business Address" name="businessAddress" placeholder="Full business address including city, state, and zip code" isTextarea />
-              </div>
-            </div>
-
-
             <div className="flex flex-col-reverse sm:flex-row justify-between gap-3 sm:gap-4">
               <button
                 type="button"
@@ -250,19 +256,24 @@ const ClientEnrollmentForm = () => {
           </>
         )}
 
-        {/* Step 3: Review & Submit */}
+        {/* Step 3: Website & Technical Access */}
         {step === 3 && (
           <>
-           <h1>Website & Technical Access</h1>
+            <div className="mb-6 sm:mb-8">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2">Website & Technical Access</h1>
+            </div>
 
-           <div className="form  flex flex-col md:flex-row md:space-x-6 ">
-            <h2>Admin Panel URL</h2>
-            <FormField label="Website URL" name="websiteUrl" placeholder="https://www.yoursite.com/admin or cPanel URL" />
-            <h2>Username</h2>
-            <FormField label="Username" name="username" placeholder="Enter your admin panel username" />
-            <h2>Password</h2>
-            <FormField label="Password" name="password" placeholder="Enter your admin panel password" type="password" />
-           </div>
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 sm:p-6 rounded-md mb-6 sm:mb-8 border border-blue-100 dark:border-blue-900/40">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-4">Website Credentials</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                <div className="col-span-1 md:col-span-2">
+                  <FormField label="Admin Panel URL" name="adminPanelUrl" placeholder="https://yoursite.com/admin or cPanel URL" required />
+                </div>
+                <FormField label="Username" name="username" placeholder="Admin username" required />
+                <FormField label="Password" name="password" placeholder="Admin password" type="password" required />
+              </div>
+            </div>
+
             <div className="flex flex-col-reverse sm:flex-row justify-between gap-3 sm:gap-4">
               <button
                 type="button"
@@ -271,10 +282,10 @@ const ClientEnrollmentForm = () => {
               >
                 Previous
               </button>
-            <button
+              <button
                 type="button"
                 onClick={nextStep}
-                className="px-4 sm:px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 text-sm sm:text-base font-medium rounded-lg transition-colors"
+                className="px-4 sm:px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base font-medium rounded-lg transition-colors"
               >
                 Next
               </button>
@@ -282,40 +293,86 @@ const ClientEnrollmentForm = () => {
           </>
         )}
 
-        {/* Step 4:  */}
-        {step === 4 &&(
-
+        {/* Step 4: SEO & Marketing Services */}
+        {step === 4 && (
           <>
-          <h1>Google Services Access</h1>
-          <div>
-            <h2>Google Access Requirement </h2>
-            <p>Please provid access to the following Google services by sharing with SEO team emails:</p>
-
-            <div className="whiteBox">
-              <h1>SEO Team Emails:</h1>
-              <ol>
-                <li>Seowithbp@gmail.com</li>
-                <li>Seobrandingpioneers@gmail.com</li>
-                <li>brandingpioneers@gmail.com</li>
-              </ol>
+            <div className="mb-6 sm:mb-8">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2">SEO & Marketing Services</h1>
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                Please complete the SEO section if you've purchased SEO services, or skip if not applicable.
+              </p>
             </div>
-          </div>
-          <input type="checkbox" />
-          <div className="text-checkbox">
-            <h3>Google My Bussiness (GMB) Access</h3>
-            <p>Tutorial: <a href="https://youtu.be/LwgbdTrCI3A?si=5yQh_A6pthCfWqXA">How to give GMB Access</a></p>
-          </div>
-            <input type="checkbox" />
-          <div className="text-checkbox">
-            <h3>Google My Bussiness (GMB) Access</h3>
-            <p>Tutorial: <a href="https://youtu.be/LwgbdTrCI3A?si=5yQh_A6pthCfWqXA">How to give GMB Access</a></p>
-          </div>
-            <input type="checkbox" />
-          <div className="text-checkbox">
-            <h3>Google My Bussiness (GMB) Access</h3>
-            <p>Tutorial: <a href="https://youtu.be/LwgbdTrCI3A?si=5yQh_A6pthCfWqXA">How to give GMB Access</a></p>
-          </div>
-              <div className="flex flex-col-reverse sm:flex-row justify-between gap-3 sm:gap-4">
+
+            {/* SEO Information Section */}
+            <div className="bg-green-50 dark:bg-green-900/20 p-4 sm:p-6 rounded-md mb-6 sm:mb-8 border border-green-100 dark:border-green-900/40">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-4">SEO Information</h2>
+              <div className="mb-4">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Previous SEO Report</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="file"
+                    name="previousSeoReport"
+                    onChange={handleChange}
+                    className="block w-full text-xs sm:text-sm text-gray-900 border border-gray-300 rounded-md cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600"
+                  />
+                  <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">No file chosen</span>
+                </div>
+              </div>
+              <FormField label="Your Investment in SEO Process" name="investmentInSeoProcess" placeholder="Select your preferred involvement level" isTextarea />
+              <FormField label="SEO Remarks" name="seoRemarks" placeholder="Share any remarks related to SEO that you want your SEO executive to be aware of" isTextarea />
+            </div>
+
+            {/* Advertising Information Section */}
+            <div className="bg-purple-50 dark:bg-purple-900/20 p-4 sm:p-6 rounded-md mb-6 sm:mb-8 border border-purple-100 dark:border-purple-900/40">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-4">Advertising Information</h2>
+              
+              <div className="mb-6">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Advertising Platforms</label>
+                <div className="space-y-2">
+                  {['Google Ads', 'Meta Ads (Facebook/Instagram)', 'Both Platforms'].map((platform) => (
+                    <div key={platform} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id={platform}
+                        name="advertisingPlatforms"
+                        value={platform}
+                        checked={formData.advertisingPlatforms.includes(platform)}
+                        onChange={handleChange}
+                        className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                      />
+                      <label htmlFor={platform} className="ml-2 text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+                        {platform}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <FormSelect
+                label="Paid Advertising Investment Comfort Level"
+                name="paidAdvertisingInvestmentLevel"
+                options={{
+                  placeholder: 'Select your comfort level for paid advertising investment',
+                  items: ['₹0-₹10,000', '₹10,000-₹50,000', '₹50,000-₹1,00,000', '₹1,00,000+']
+                }}
+              />
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-4">We'll start conservatively and scale based on performance data and your comfort level</p>
+
+              <FormSelect
+                label="Your Investment in Ads Management"
+                name="adManagementInvestmentLevel"
+                options={{
+                  placeholder: 'Select your preferred involvement level',
+                  items: ['Minimal', 'Moderate', 'Active']
+                }}
+              />
+
+              <FormField label="Target Locations for Ads" name="targetLocationsForAds" placeholder="List all locations where you expect customers from" isTextarea />
+
+              <FormField label="Ad Remarks" name="adRemarks" placeholder="Any instructions for your Ad executive" isTextarea />
+            </div>
+
+            <div className="flex flex-col-reverse sm:flex-row justify-between gap-3 sm:gap-4">
               <button
                 type="button"
                 onClick={prevStep}
@@ -323,17 +380,19 @@ const ClientEnrollmentForm = () => {
               >
                 Previous
               </button>
-            <button
+              <button
                 type="button"
                 onClick={nextStep}
-                className="px-4 sm:px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 text-sm sm:text-base font-medium rounded-lg transition-colors"
+                className="px-4 sm:px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base font-medium rounded-lg transition-colors"
               >
                 Next
               </button>
             </div>
           </>
-
         )}
+
+        {/* Step 5:  */}
+          
       </div>
     </div>
   );

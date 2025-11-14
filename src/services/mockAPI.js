@@ -116,7 +116,7 @@ let mockAnnouncements = [
   }
 ];
 
-const departments = ['Web', 'SEO', 'Ads', 'Graphics', 'Accounts'];
+const departments = ['Web', 'SEO', 'Ads', 'Graphics', 'Accounts', 'Admin', 'AI', 'HR'];
 
 export const mockAPI = {
   // Authentication

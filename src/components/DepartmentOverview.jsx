@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../common/SafeIcon';
-import { mockAPI } from '../services/mockAPI';
+// import { mock } from '../services/mockAPI';
 
 const { FiUsers, FiCheckCircle, FiClock, FiAlertTriangle } = FiIcons;
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../common/SafeIcon';
-import { mockAPI } from '../services/mockAPI';
+import { api } from '../services/api';
 
 const { FiTrophy, FiAward, FiMedal, FiUsers } = FiIcons;
 
@@ -18,7 +18,7 @@ const Leaderboard = () => {
   const fetchLeaderboardData = async () => {
     try {
       setLoading(true);
-      const data = await mockAPI.getLeaderboard(timeFilter);
+      const data = await api.getLeaderboard(timeFilter);
       setLeaderboardData(data);
     } catch (error) {
       console.error('Failed to fetch leaderboard:', error);

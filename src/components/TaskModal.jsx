@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../common/SafeIcon';
-import { mockAPI } from '../services/mockAPI';
+import { api } from '../services/api';
 
 const { FiX, FiCalendar, FiUser, FiUsers } = FiIcons;
 
@@ -38,8 +38,8 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task, isAdmin }) => {
     const fetchData = async () => {
       try {
         const [depts, usersData] = await Promise.all([
-          mockAPI.getDepartments(),
-          isAdmin ? mockAPI.getUsers() : []
+          api.getDepartments(),
+          isAdmin ? api.getUsers() : []
         ]);
         setDepartments(depts);
         setUsers(usersData);
