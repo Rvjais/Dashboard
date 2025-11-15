@@ -203,6 +203,46 @@ export const api = {
     });
   },
 
+  // ==================== CLIENT ONBOARDING ====================
+  createClientOnboarding: async (onboardingData) => {
+    return await apiCall('/onboarding', {
+      method: 'POST',
+      body: onboardingData
+    });
+  },
+
+  saveDraft: async (draftData) => {
+    return await apiCall('/onboarding/draft', {
+      method: 'POST',
+      body: draftData
+    });
+  },
+
+  getClientOnboarding: async (clientId) => {
+    return await apiCall(`/onboarding/${clientId}`, {
+      method: 'GET'
+    });
+  },
+
+  updateClientOnboarding: async (recordId, updates) => {
+    return await apiCall(`/onboarding/${recordId}`, {
+      method: 'PUT',
+      body: updates
+    });
+  },
+
+  getAllClientOnboardings: async (filters = {}) => {
+    const params = new URLSearchParams();
+    if (filters.status) params.append('status', filters.status);
+    if (filters.industry) params.append('industry', filters.industry);
+    if (filters.search) params.append('search', filters.search);
+
+    const queryString = params.toString();
+    return await apiCall(`/onboarding${queryString ? '?' + queryString : ''}`, {
+      method: 'GET'
+    });
+  },
+
   // ==================== HEALTH CHECK ====================
   healthCheck: async () => {
     try {
