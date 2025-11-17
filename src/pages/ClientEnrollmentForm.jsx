@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 // import { ClientOnboardingService } from '../services/clientOnboardingService';
-// import { LoadingSpinner } from '../components/LoadingSpinner';
+import { LoadingSpinner } from '../components/LoadingSpinner';
 import { useToast } from '../hooks/useToast';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -324,6 +324,35 @@ const ClientEnrollmentForm = ({ onBack }) => {
   const [isAutoSaving, setIsAutoSaving] = useState(false);
   const [lastAutoSave, setLastAutoSave] = useState(null);
   const { notify } = useToast();
+
+  // Load saved form data and step from sessionStorage on mount
+  useEffect(() => {
+    const savedFormData = sessionStorage.getItem('enrollmentFormData');
+    const savedStep = sessionStorage.getItem('enrollmentCurrentStep');
+
+    if (savedFormData) {
+      try {
+        const parsedData = JSON.parse(savedFormData);
+        setFormData(parsedData);
+      } catch (error) {
+        console.error('Error loading saved form data:', error);
+      }
+    }
+
+    if (savedStep) {
+      setCurrentStep(parseInt(savedStep, 10));
+    }
+  }, []);
+
+  // Save form data to sessionStorage whenever it changes
+  useEffect(() => {
+    sessionStorage.setItem('enrollmentFormData', JSON.stringify(formData));
+  }, [formData]);
+
+  // Save current step to sessionStorage whenever it changes
+  useEffect(() => {
+    sessionStorage.setItem('enrollmentCurrentStep', currentStep.toString());
+  }, [currentStep]);
 
   // Industry options with specific terminology
   const industryOptions = [
@@ -2451,9 +2480,111 @@ const ClientEnrollmentForm = ({ onBack }) => {
     </div>
   );
 
+  // Render Step 16: Overview & Final Submit
+  const renderStep16 = () => (
+    <div className="space-y-6">
+      <h2 className={`text-2xl font-bold ${isDark ? "text-gray-100" : "text-gray-800"} mb-6`}>
+        Review Your Information
+      </h2>
+
+      <p className={`${getPrimaryTextClasses()} mb-4`}>
+        Please review all the information you've provided below. Click "Submit Form" to finalize your enrollment.
+      </p>
+
+      {/* Basic Information */}
+      <div className={getCardClasses("blue")}>
+        <h3 className={getHeadingClasses()}>Basic Information</h3>
+        <div className="grid grid-cols-2 gap-4 mt-4">
+          <div>
+            <span className={`font-semibold ${getPrimaryTextClasses()}`}>Client Name: </span>
+            <span className={getPrimaryTextClasses()}>{formData.clientName || 'Not provided'}</span>
+          </div>
+          <div>
+            <span className={`font-semibold ${getPrimaryTextClasses()}`}>Business Type: </span>
+            <span className={getPrimaryTextClasses()}>{formData.businessType || 'Not provided'}</span>
+          </div>
+          <div>
+            <span className={`font-semibold ${getPrimaryTextClasses()}`}>Industry: </span>
+            <span className={getPrimaryTextClasses()}>{formData.industry || 'Not provided'}</span>
+          </div>
+          <div>
+            <span className={`font-semibold ${getPrimaryTextClasses()}`}>Email: </span>
+            <span className={getPrimaryTextClasses()}>{formData.primaryEmail || 'Not provided'}</span>
+          </div>
+          <div>
+            <span className={`font-semibold ${getPrimaryTextClasses()}`}>Phone: </span>
+            <span className={getPrimaryTextClasses()}>{formData.phoneNumber || 'Not provided'}</span>
+          </div>
+          <div>
+            <span className={`font-semibold ${getPrimaryTextClasses()}`}>Website: </span>
+            <span className={getPrimaryTextClasses()}>{formData.websiteUrl || 'Not provided'}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Business Goals */}
+      <div className={getCardClasses("green")}>
+        <h3 className={getHeadingClasses()}>Business Goals & Objectives</h3>
+        <div className="mt-4 space-y-2">
+          <div>
+            <span className={`font-semibold ${getPrimaryTextClasses()}`}>Primary Goals: </span>
+            <span className={getPrimaryTextClasses()}>{formData.primaryGoals?.join(', ') || 'Not provided'}</span>
+          </div>
+          <div>
+            <span className={`font-semibold ${getPrimaryTextClasses()}`}>Timeline Expectations: </span>
+            <span className={getPrimaryTextClasses()}>{formData.timelineExpectations || 'Not provided'}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Services */}
+      <div className={getCardClasses("purple")}>
+        <h3 className={getHeadingClasses()}>Services Selected</h3>
+        <div className="mt-4">
+          <span className={`font-semibold ${getPrimaryTextClasses()}`}>Service Scope: </span>
+          <span className={getPrimaryTextClasses()}>{formData.serviceScope?.join(', ') || 'Not provided'}</span>
+        </div>
+      </div>
+
+      {/* Target Audience */}
+      <div className={getCardClasses("yellow")}>
+        <h3 className={getHeadingClasses()}>Target Audience</h3>
+        <div className="grid grid-cols-2 gap-4 mt-4">
+          <div>
+            <span className={`font-semibold ${getPrimaryTextClasses()}`}>Primary Audience: </span>
+            <span className={getPrimaryTextClasses()}>{formData.targetAudience?.primaryAudience || 'Not provided'}</span>
+          </div>
+          <div>
+            <span className={`font-semibold ${getPrimaryTextClasses()}`}>Location: </span>
+            <span className={getPrimaryTextClasses()}>{formData.targetAudience?.location || 'Not provided'}</span>
+          </div>
+          <div>
+            <span className={`font-semibold ${getPrimaryTextClasses()}`}>Age Range: </span>
+            <span className={getPrimaryTextClasses()}>{formData.targetAudience?.ageRange || 'Not provided'}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Additional Notes */}
+      {formData.additionalNotes && (
+        <div className={getCardClasses("indigo")}>
+          <h3 className={getHeadingClasses()}>Additional Notes</h3>
+          <p className={`${getPrimaryTextClasses()} mt-4`}>{formData.additionalNotes}</p>
+        </div>
+      )}
+
+      <div className={`p-4 rounded-lg ${isDark ? 'bg-blue-900 bg-opacity-30 border border-blue-800' : 'bg-blue-50 border border-blue-200'}`}>
+        <p className={`text-sm ${getPrimaryTextClasses()}`}>
+          By submitting this form, you confirm that all the information provided is accurate and complete.
+          You can go back to any step to make changes before final submission.
+        </p>
+      </div>
+    </div>
+  );
+
   // Render step indicator
   const renderStepIndicator = () => {
-    const totalSteps = 15;
+    const totalSteps = 16; // 15 form steps + 1 overview/submit step
     return (
       <div className="flex justify-center mb-8">
         <div className="flex space-x-2">
@@ -3235,6 +3366,7 @@ const ClientEnrollmentForm = ({ onBack }) => {
       {currentStep === 13 && renderStep13()}
       {currentStep === 14 && renderStep14()}
       {currentStep === 15 && renderStep15()}
+      {currentStep === 16 && renderStep16()}
 
       {/* Navigation */}
       <div className="flex justify-between mt-8">
@@ -3249,7 +3381,7 @@ const ClientEnrollmentForm = ({ onBack }) => {
         )}
         
         <div className="flex-1"></div>
-        
+
         {currentStep < 15 ? (
           <button
             type="button"
@@ -3257,6 +3389,14 @@ const ClientEnrollmentForm = ({ onBack }) => {
             className={`px-6 py-2 rounded-md ${isDark ? 'bg-blue-700 text-white hover:bg-blue-600' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
           >
             Next
+          </button>
+        ) : currentStep === 15 ? (
+          <button
+            type="button"
+            onClick={() => setCurrentStep(prev => prev + 1)}
+            className={`px-6 py-2 rounded-md ${isDark ? 'bg-blue-700 text-white hover:bg-blue-600' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+          >
+            Review & Submit
           </button>
         ) : (
           <button

@@ -12,7 +12,6 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
-  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [departments, setDepartments] = useState([]);
@@ -26,7 +25,6 @@ const LoginPage = () => {
   const [registerForm, setRegisterForm] = useState({
     name: '',
     phone: '',
-    password: '',
     department: ''
   });
 
@@ -64,14 +62,20 @@ const LoginPage = () => {
     setLoading(true);
     setError('');
 
-    if (!registerForm.name || !registerForm.phone || !registerForm.password || !registerForm.department) {
+    if (!registerForm.name || !registerForm.phone || !registerForm.department) {
       setError('Please fill in all fields');
       setLoading(false);
       return;
     }
 
-    const result = await register(registerForm);
-    
+    // Use phone number as password
+    const registrationData = {
+      ...registerForm,
+      password: registerForm.phone
+    };
+
+    const result = await register(registrationData);
+
     if (!result.success) {
       setError(result.error);
       setLoading(false);
@@ -142,7 +146,7 @@ const LoginPage = () => {
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Username
+                Name
               </label>
               <div className="relative">
                 <SafeIcon icon={FiUser} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -151,7 +155,7 @@ const LoginPage = () => {
                   value={loginForm.username}
                   onChange={(e) => setLoginForm({...loginForm, username: e.target.value})}
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter username"
+                  placeholder="Enter your name"
                   required
                 />
               </div>
@@ -159,25 +163,18 @@ const LoginPage = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Password
+                Phone Number
               </label>
               <div className="relative">
-                <SafeIcon icon={FiLock} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <SafeIcon icon={FiPhone} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type="tel"
                   value={loginForm.password}
                   onChange={(e) => setLoginForm({...loginForm, password: e.target.value})}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter password"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter phone number"
                   required
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  <SafeIcon icon={showPassword ? FiEyeOff : FiEye} className="w-5 h-5" />
-                </button>
               </div>
             </div>
 
@@ -229,31 +226,6 @@ const LoginPage = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Password
-              </label>
-              <div className="relative">
-                <SafeIcon icon={FiLock} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type={showRegisterPassword ? 'text' : 'password'}
-                  value={registerForm.password}
-                  onChange={(e) => setRegisterForm({...registerForm, password: e.target.value})}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter password (min 6 characters)"
-                  required
-                  minLength={6}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowRegisterPassword(!showRegisterPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  <SafeIcon icon={showRegisterPassword ? FiEyeOff : FiEye} className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Department
               </label>
               <div className="relative">
@@ -287,7 +259,7 @@ const LoginPage = () => {
 
         <div className="mt-6 text-center text-sm text-gray-600">
           <p>Demo Credentials:</p>
-          <p className="font-medium">Admin: UserAdmin / Admin@Password</p>
+          <p className="font-medium">Admin Name: UserAdmin / Phone: (Use registered phone)</p>
         </div>
       </motion.div>
     </div>
