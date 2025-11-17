@@ -10,21 +10,29 @@ const { FiUser, FiLock, FiEye, FiEyeOff, FiUsers, FiPhone, FiChevronDown } = FiI
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const [userType, setUserType] = useState('employee'); // 'employee' or 'admin'
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [departments, setDepartments] = useState([]);
   const { login, register } = useAuth();
 
-  const [loginForm, setLoginForm] = useState({
+  const [adminForm, setAdminForm] = useState({
     username: '',
     password: ''
   });
 
-  const [registerForm, setRegisterForm] = useState({
+  const [employeeLoginForm, setEmployeeLoginForm] = useState({
+    username: '',
+    password: ''
+  });
+
+  const [employeeRegisterForm, setEmployeeRegisterForm] = useState({
     name: '',
     phone: '',
+    password: '',
     department: ''
   });
 
@@ -32,7 +40,9 @@ const LoginPage = () => {
     const fetchDepartments = async () => {
       try {
         const response = await api.getDepartments();
-        setDepartments(response);
+        // Filter out 'Admin' from department list
+        const filteredDepts = response.filter(dept => dept !== 'Admin');
+        setDepartments(filteredDepts);
       } catch (err) {
         console.error('Failed to fetch departments:', err);
         setError('Failed to load departments');
@@ -41,46 +51,53 @@ const LoginPage = () => {
     fetchDepartments();
   }, []);
 
-  const handleLogin = async (e) => {
+  const handleAdminLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    const result = await login(loginForm);
+    const result = await login(adminForm);
     
     if (!result.success) {
       setError(result.error);
       setLoading(false);
     } else {
-      // Navigate to dashboard after successful login
       navigate('/');
     }
   };
 
-  const handleRegister = async (e) => {
+  const handleEmployeeLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    if (!registerForm.name || !registerForm.phone || !registerForm.department) {
+    const result = await login(employeeLoginForm);
+    
+    if (!result.success) {
+      setError(result.error);
+      setLoading(false);
+    } else {
+      navigate('/');
+    }
+  };
+
+  const handleEmployeeRegister = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    if (!employeeRegisterForm.name || !employeeRegisterForm.phone || !employeeRegisterForm.password || !employeeRegisterForm.department) {
       setError('Please fill in all fields');
       setLoading(false);
       return;
     }
 
-    // Use phone number as password
-    const registrationData = {
-      ...registerForm,
-      password: registerForm.phone
-    };
-
-    const result = await register(registrationData);
-
+    const result = await register(employeeRegisterForm);
+    
     if (!result.success) {
       setError(result.error);
       setLoading(false);
     } else {
-      // Navigate to dashboard after successful registration
       navigate('/');
     }
   };
@@ -94,173 +111,306 @@ const LoginPage = () => {
         className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md"
       >
         <div className="text-center mb-8 justify-center flex flex-col items-center">
-        <img src={logo} alt="" className='h-[200px]' />
-          {/* <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2, type: "spring" }}
-            className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4"
-          >
-            <SafeIcon icon={FiUsers} className="w-8 h-8 text-white" />
-          </motion.div> */}
+          <img src={logo} alt="" className='h-[200px]' />
           <h1 className="text-2xl font-bold text-gray-900">BP Dashboard</h1>
-          <p className="text-gray-600 mt-2">
-            {isLogin ? 'Sign in to your account' : 'Create your account'}
-          </p>
+          <p className="text-gray-600 mt-2">Welcome to Dashboard</p>
         </div>
 
+        {/* User Type Selector */}
         <div className="flex bg-gray-100 rounded-lg p-1 mb-6">
           <button
-            onClick={() => setIsLogin(true)}
+            onClick={() => {
+              setUserType('employee');
+              setIsLogin(true);
+              setError('');
+            }}
             className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-              isLogin 
+              userType === 'employee' 
                 ? 'bg-white text-blue-600 shadow-sm' 
                 : 'text-gray-600 hover:text-gray-800'
             }`}
           >
-            Login
+            Employee
           </button>
           <button
-            onClick={() => setIsLogin(false)}
+            onClick={() => {
+              setUserType('admin');
+              setIsLogin(true);
+              setError('');
+            }}
             className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-              !isLogin 
+              userType === 'admin' 
                 ? 'bg-white text-blue-600 shadow-sm' 
                 : 'text-gray-600 hover:text-gray-800'
             }`}
           >
-            Register
+            Admin
           </button>
         </div>
 
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4"
-          >
-            {error}
-          </motion.div>
+        {/* Admin Login */}
+        {userType === 'admin' && (
+          <>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4"
+              >
+                {error}
+              </motion.div>
+            )}
+
+            <form onSubmit={handleAdminLogin} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Admin Username
+                </label>
+                <div className="relative">
+                  <SafeIcon icon={FiUser} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <input
+                    type="text"
+                    value={adminForm.username}
+                    onChange={(e) => setAdminForm({...adminForm, username: e.target.value})}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Enter admin username"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Password
+                </label>
+                <div className="relative">
+                  <SafeIcon icon={FiLock} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={adminForm.password}
+                    onChange={(e) => setAdminForm({...adminForm, password: e.target.value})}
+                    className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Enter password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    <SafeIcon icon={showPassword ? FiEyeOff : FiEye} className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                type="submit"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 rounded-lg font-medium hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                {loading ? 'Signing in...' : 'Admin Login'}
+              </motion.button>
+            </form>
+
+            <div className="mt-6 text-center text-sm text-gray-600 bg-blue-50 p-4 rounded-lg">
+              <p className="font-semibold text-gray-900">Demo Admin Credentials:</p>
+              <p>Username: <span className="font-mono font-bold">admin</span></p>
+              <p>Password: <span className="font-mono font-bold">Admin@12345</span></p>
+            </div>
+          </>
         )}
-
-        {isLogin ? (
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Name
-              </label>
-              <div className="relative">
-                <SafeIcon icon={FiUser} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  value={loginForm.username}
-                  onChange={(e) => setLoginForm({...loginForm, username: e.target.value})}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter your name"
-                  required
-                />
-              </div>
+        {/* Employee Login/Register */}
+        {userType === 'employee' && (
+          <>
+            <div className="flex bg-gray-100 rounded-lg p-1 mb-6">
+              <button
+                onClick={() => {
+                  setIsLogin(true);
+                  setError('');
+                }}
+                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                  isLogin 
+                    ? 'bg-white text-blue-600 shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                Login
+              </button>
+              <button
+                onClick={() => {
+                  setIsLogin(false);
+                  setError('');
+                }}
+                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                  !isLogin 
+                    ? 'bg-white text-blue-600 shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                Register
+              </button>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Phone Number
-              </label>
-              <div className="relative">
-                <SafeIcon icon={FiPhone} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="tel"
-                  value={loginForm.password}
-                  onChange={(e) => setLoginForm({...loginForm, password: e.target.value})}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter phone number"
-                  required
-                />
-              </div>
-            </div>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4"
+              >
+                {error}
+              </motion.div>
+            )}
 
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 rounded-lg font-medium hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-            >
-              {loading ? 'Signing in...' : 'Sign In'}
-            </motion.button>
-          </form>
-        ) : (
-          <form onSubmit={handleRegister} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Full Name
-              </label>
-              <div className="relative">
-                <SafeIcon icon={FiUser} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  value={registerForm.name}
-                  onChange={(e) => setRegisterForm({...registerForm, name: e.target.value})}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter your full name"
-                  required
-                />
-              </div>
-            </div>
+            {isLogin ? (
+              <form onSubmit={handleEmployeeLogin} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Name or Phone
+                  </label>
+                  <div className="relative">
+                    <SafeIcon icon={FiUser} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input
+                      type="text"
+                      value={employeeLoginForm.username}
+                      onChange={(e) => setEmployeeLoginForm({...employeeLoginForm, username: e.target.value})}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Enter your name or phone"
+                      required
+                    />
+                  </div>
+                </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Phone Number
-              </label>
-              <div className="relative">
-                <SafeIcon icon={FiPhone} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="tel"
-                  value={registerForm.phone}
-                  onChange={(e) => setRegisterForm({...registerForm, phone: e.target.value})}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter phone number"
-                  required
-                />
-              </div>
-            </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <SafeIcon icon={FiLock} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={employeeLoginForm.password}
+                      onChange={(e) => setEmployeeLoginForm({...employeeLoginForm, password: e.target.value})}
+                      className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Enter password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      <SafeIcon icon={showPassword ? FiEyeOff : FiEye} className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Department
-              </label>
-              <div className="relative">
-                <SafeIcon icon={FiUsers} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <select
-                  value={registerForm.department}
-                  onChange={(e) => setRegisterForm({...registerForm, department: e.target.value})}
-                  className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
-                  required
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 rounded-lg font-medium hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
-                  <option value="">Select department</option>
-                  {departments.map(dept => (
-                    <option key={dept} value={dept}>{dept}</option>
-                  ))}
-                </select>
-                <SafeIcon icon={FiChevronDown} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
-              </div>
-            </div>
+                  {loading ? 'Signing in...' : 'Sign In'}
+                </motion.button>
+              </form>
+            ) : (
+              <form onSubmit={handleEmployeeRegister} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Full Name
+                  </label>
+                  <div className="relative">
+                    <SafeIcon icon={FiUser} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input
+                      type="text"
+                      value={employeeRegisterForm.name}
+                      onChange={(e) => setEmployeeRegisterForm({...employeeRegisterForm, name: e.target.value})}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Enter your full name"
+                      required
+                    />
+                  </div>
+                </div>
 
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 rounded-lg font-medium hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-            >
-              {loading ? 'Creating Account...' : 'Create Account'}
-            </motion.button>
-          </form>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Phone Number
+                  </label>
+                  <div className="relative">
+                    <SafeIcon icon={FiPhone} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input
+                      type="tel"
+                      value={employeeRegisterForm.phone}
+                      onChange={(e) => setEmployeeRegisterForm({...employeeRegisterForm, phone: e.target.value})}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Enter phone number"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <SafeIcon icon={FiLock} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input
+                      type={showRegisterPassword ? 'text' : 'password'}
+                      value={employeeRegisterForm.password}
+                      onChange={(e) => setEmployeeRegisterForm({...employeeRegisterForm, password: e.target.value})}
+                      className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Enter password (min 6 characters)"
+                      required
+                      minLength={6}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      <SafeIcon icon={showRegisterPassword ? FiEyeOff : FiEye} className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Department
+                  </label>
+                  <div className="relative">
+                    <SafeIcon icon={FiUsers} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <select
+                      value={employeeRegisterForm.department}
+                      onChange={(e) => setEmployeeRegisterForm({...employeeRegisterForm, department: e.target.value})}
+                      className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                      required
+                    >
+                      <option value="">Select department</option>
+                      {departments.map(dept => (
+                        <option key={dept} value={dept}>{dept}</option>
+                      ))}
+                    </select>
+                    <SafeIcon icon={FiChevronDown} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
+                  </div>
+                </div>
+
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 rounded-lg font-medium hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  {loading ? 'Creating Account...' : 'Create Account'}
+                </motion.button>
+              </form>
+            )}
+          </>
         )}
-
-        <div className="mt-6 text-center text-sm text-gray-600">
-          <p>Demo Credentials:</p>
-          <p className="font-medium">Admin Name: UserAdmin / Phone: (Use registered phone)</p>
-        </div>
       </motion.div>
     </div>
   );

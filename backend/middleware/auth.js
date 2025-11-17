@@ -16,6 +16,31 @@ const auth = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Handle admin user (hardcoded)
+    if (decoded.id === 'admin-user') {
+      req.user = {
+        _id: 'admin-user',
+        id: 'admin-user',
+        name: 'Admin',
+        role: 'admin',
+        department: 'Admin',
+        toProfileJSON: function() {
+          return {
+            id: this._id,
+            name: this.name,
+            role: this.role,
+            department: this.department,
+            completedTasks: 0,
+            points: 0,
+            streak: 0
+          };
+        }
+      };
+      return next();
+    }
+
+    // Handle regular employee
     const user = await User.findById(decoded.id).select('-password');
 
     if (!user) {

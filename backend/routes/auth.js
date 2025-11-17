@@ -4,7 +4,13 @@ const User = require('../models/User');
 const { auth } = require('../middleware/auth');
 const router = express.Router();
 
-// Register new user
+// Hardcoded admin credentials
+const ADMIN_CREDENTIALS = {
+  username: 'admin',
+  password: 'Admin@12345'
+};
+
+// Register new user (employees only)
 router.post('/register', async (req, res) => {
   try {
     const { name, phone, department, password } = req.body;
@@ -25,7 +31,8 @@ router.post('/register', async (req, res) => {
       name,
       phone,
       department,
-      password // Password stored as plain text
+      password, // Password stored as plain text
+      role: 'employee'
     });
 
     await user.save();
@@ -53,7 +60,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Login user
+// Login user (employees and admin)
 router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -63,7 +70,30 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Username and password are required' });
     }
 
-    // Find user by name or phone
+    // Check if login is for admin
+    if (username.toLowerCase() === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+      const token = jwt.sign(
+        { id: 'admin-user', role: 'admin', username: 'admin' },
+        process.env.JWT_SECRET,
+        { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+      );
+
+      return res.json({
+        message: 'Admin login successful',
+        token,
+        user: {
+          id: 'admin-user',
+          name: 'Admin',
+          role: 'admin',
+          department: 'Admin',
+          completedTasks: 0,
+          points: 0,
+          streak: 0
+        }
+      });
+    }
+
+    // Find user by name or phone (employees only)
     const user = await User.findOne({
       $or: [{ name: username }, { phone: username }]
     });
@@ -105,6 +135,22 @@ router.post('/login', async (req, res) => {
 
 // Get current user
 router.get('/me', auth, async (req, res) => {
+  // Handle admin user
+  if (req.user.role === 'admin' && req.user.id === 'admin-user') {
+    return res.json({
+      user: {
+        id: 'admin-user',
+        name: 'Admin',
+        role: 'admin',
+        department: 'Admin',
+        completedTasks: 0,
+        points: 0,
+        streak: 0
+      }
+    });
+  }
+
+  // Handle regular employee
   res.json({
     user: req.user.toProfileJSON()
   });

@@ -10,14 +10,13 @@ const userSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
-    required: [true, 'Phone number is required'],
     unique: true,
+    sparse: true,
     trim: true
   },
   department: {
     type: String,
-    required: [true, 'Department is required'],
-    enum: ['Web', 'AI', 'SEO', 'Ads', 'Graphics', 'Accounts', 'Admin', 'HR', 'Social'],
+    enum: ['Web', 'AI', 'SEO', 'Ads', 'Graphics', 'Accounts', 'HR', 'Social'],
     default: 'Web'
   },
   role: {
