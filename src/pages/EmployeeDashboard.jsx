@@ -53,7 +53,10 @@ const EmployeeDashboard = () => {
     try {
       const newTaskData = {
         ...taskData,
-        status: 'Pending'
+        status: 'Pending',
+        assignedTo: user.name,
+        assignedBy: user.name,
+        department: user.department
       };
       await api.createTask(newTaskData);
       fetchDashboardData();
@@ -70,6 +73,7 @@ const EmployeeDashboard = () => {
       setEditingTask(null);
     } catch (error) {
       console.error('Failed to update task:', error);
+      alert('Failed to update task: ' + error.message);
     }
   };
 

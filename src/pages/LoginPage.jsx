@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../common/SafeIcon';
 import { useAuth } from '../contexts/AuthContext';
@@ -8,8 +9,10 @@ import logo from '../assets/logo.png';
 const { FiUser, FiLock, FiEye, FiEyeOff, FiUsers, FiPhone, FiChevronDown } = FiIcons;
 
 const LoginPage = () => {
+  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [departments, setDepartments] = useState([]);
@@ -23,6 +26,7 @@ const LoginPage = () => {
   const [registerForm, setRegisterForm] = useState({
     name: '',
     phone: '',
+    password: '',
     department: ''
   });
 
@@ -48,9 +52,11 @@ const LoginPage = () => {
     
     if (!result.success) {
       setError(result.error);
+      setLoading(false);
+    } else {
+      // Navigate to dashboard after successful login
+      navigate('/');
     }
-    
-    setLoading(false);
   };
 
   const handleRegister = async (e) => {
@@ -58,7 +64,7 @@ const LoginPage = () => {
     setLoading(true);
     setError('');
 
-    if (!registerForm.name || !registerForm.phone || !registerForm.department) {
+    if (!registerForm.name || !registerForm.phone || !registerForm.password || !registerForm.department) {
       setError('Please fill in all fields');
       setLoading(false);
       return;
@@ -68,9 +74,11 @@ const LoginPage = () => {
     
     if (!result.success) {
       setError(result.error);
+      setLoading(false);
+    } else {
+      // Navigate to dashboard after successful registration
+      navigate('/');
     }
-    
-    setLoading(false);
   };
 
   return (
@@ -216,6 +224,31 @@ const LoginPage = () => {
                   placeholder="Enter phone number"
                   required
                 />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Password
+              </label>
+              <div className="relative">
+                <SafeIcon icon={FiLock} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type={showRegisterPassword ? 'text' : 'password'}
+                  value={registerForm.password}
+                  onChange={(e) => setRegisterForm({...registerForm, password: e.target.value})}
+                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter password (min 6 characters)"
+                  required
+                  minLength={6}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <SafeIcon icon={showRegisterPassword ? FiEyeOff : FiEye} className="w-5 h-5" />
+                </button>
               </div>
             </div>
 

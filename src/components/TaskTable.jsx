@@ -99,7 +99,7 @@ const TaskTable = ({ tasks, onEdit, onDelete, onStatusUpdate, isAdmin }) => {
           <tbody className="bg-white divide-y divide-gray-200">
             {filteredTasks.map((task, index) => (
               <motion.tr
-                key={task.id}
+                key={task._id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
@@ -154,7 +154,7 @@ const TaskTable = ({ tasks, onEdit, onDelete, onStatusUpdate, isAdmin }) => {
                     </button>
                     {isAdmin && onDelete && (
                       <button
-                        onClick={() => onDelete(task.id)}
+                        onClick={() => onDelete(task._id)}
                         className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
                       >
                         <SafeIcon icon={FiTrash2} className="w-4 h-4" />

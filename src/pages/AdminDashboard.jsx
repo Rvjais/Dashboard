@@ -59,6 +59,7 @@ const AdminDashboard = () => {
       setShowTaskModal(false);
     } catch (error) {
       console.error('Failed to create task:', error);
+      alert('Failed to create task: ' + error.message);
     }
   };
 
@@ -69,6 +70,7 @@ const AdminDashboard = () => {
       setEditingTask(null);
     } catch (error) {
       console.error('Failed to update task:', error);
+      alert('Failed to update task: ' + error.message);
     }
   };
 
