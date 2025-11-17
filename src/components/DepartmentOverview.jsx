@@ -20,7 +20,7 @@ const DepartmentOverview = ({ currentUser }) => {
       const tasks = await api.getTasks();
 
       // Group tasks by department
-      const departments = ['Web', 'AI', 'SEO', 'Ads', 'Graphics', 'Accounts', 'Admin', 'HR'];
+      const departments = ['Web', 'AI', 'SEO', 'Ads', 'Graphics', 'Accounts', 'Admin', 'HR', 'Social'];
       const stats = departments.map(dept => {
         const deptTasks = tasks.filter(task => task.department === dept);
         return {
