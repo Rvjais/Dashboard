@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../common/SafeIcon';
-// import { mock } from '../services/mockAPI';
+import { api } from '../services/api';
 
 const { FiUsers, FiCheckCircle, FiClock, FiAlertTriangle } = FiIcons;
 
@@ -16,8 +16,22 @@ const DepartmentOverview = ({ currentUser }) => {
 
   const fetchDepartmentStats = async () => {
     try {
-      const stats = await mockAPI.getDashboardStats('admin');
-      setDepartmentStats(stats.departmentStats || []);
+      // Get all tasks and calculate stats per department
+      const tasks = await api.getTasks();
+
+      // Group tasks by department
+      const departments = ['Web', 'AI', 'SEO', 'Ads', 'Graphics', 'Accounts', 'Admin', 'HR'];
+      const stats = departments.map(dept => {
+        const deptTasks = tasks.filter(task => task.department === dept);
+        return {
+          department: dept,
+          total: deptTasks.length,
+          completed: deptTasks.filter(t => t.status === 'Completed').length,
+          pending: deptTasks.filter(t => t.status === 'Pending').length
+        };
+      });
+
+      setDepartmentStats(stats);
     } catch (error) {
       console.error('Failed to fetch department stats:', error);
     } finally {

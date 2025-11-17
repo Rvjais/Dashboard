@@ -16,7 +16,7 @@ const taskSchema = new mongoose.Schema({
   department: {
     type: String,
     required: [true, 'Department is required'],
-    enum: ['Web','AI', 'SEO', 'Ads', 'Graphics', 'Accounts']
+    enum: ['Web', 'AI', 'SEO', 'Ads', 'Graphics', 'Accounts', 'Admin', 'HR']
   },
   assignedBy: {
     type: String,

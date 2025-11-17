@@ -7,11 +7,11 @@ const router = express.Router();
 // Register new user
 router.post('/register', async (req, res) => {
   try {
-    const { name, phone, department } = req.body;
+    const { name, phone, department, password } = req.body;
 
     // Validate input
-    if (!name || !phone || !department) {
-      return res.status(400).json({ error: 'Name, phone, and department are required' });
+    if (!name || !phone || !department || !password) {
+      return res.status(400).json({ error: 'Name, phone, department, and password are required' });
     }
 
     // Check if user already exists
