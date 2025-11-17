@@ -25,7 +25,7 @@ router.post('/register', async (req, res) => {
       name,
       phone,
       department,
-      password // Password will be hashed by the pre-save middleware
+      password // Password stored as plain text
     });
 
     await user.save();
@@ -73,7 +73,7 @@ router.post('/login', async (req, res) => {
     }
 
     // Check password using the comparePassword method
-    const isMatch = await  user.comparePassword(password);
+    const isMatch = user.comparePassword(password);
 
     if (!isMatch) {
       return res.status(401).json({ error: 'Invalid credentials' });

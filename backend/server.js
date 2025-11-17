@@ -1,8 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 // Validate required environment variables
@@ -20,8 +18,7 @@ const leaderboardRoutes = require('./routes/leaderboard');
 
 const app = express();
 
-// Security middleware
-app.use(helmet());
+// Middleware
 app.use(cors({
   origin: function(origin, callback) {
     const allowedOrigins = [
@@ -38,13 +35,6 @@ app.use(cors({
   },
   credentials: true
 }));
-
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
-});
-app.use('/api/', limiter);
 
 app.use(express.json());
 
