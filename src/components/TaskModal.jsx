@@ -22,12 +22,22 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task, isAdmin }) => {
 
   useEffect(() => {
     if (task) {
+      // Handle deadline - it might be a Date object or a string
+      let deadlineString = '';
+      if (task.deadline) {
+        if (typeof task.deadline === 'string') {
+          deadlineString = task.deadline.split('T')[0];
+        } else if (task.deadline instanceof Date) {
+          deadlineString = task.deadline.toISOString().split('T')[0];
+        }
+      }
+
       setFormData({
         title: task.title,
         description: task.description,
         department: task.department,
         assignedTo: task.assignedTo,
-        deadline: task.deadline.toISOString().split('T')[0],
+        deadline: deadlineString,
         priority: task.priority,
         status: task.status
       });

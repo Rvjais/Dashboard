@@ -128,7 +128,7 @@ const TaskTable = ({ tasks, onEdit, onDelete, onStatusUpdate, isAdmin }) => {
                   {!isAdmin && task.assignedTo === task.assignedBy ? (
                     <select
                       value={task.status}
-                      onChange={(e) => handleStatusChange(task.id, e.target.value)}
+                      onChange={(e) => handleStatusChange(task._id || task.id, e.target.value)}
                       className={`text-xs font-semibold rounded-full px-2 py-1 border-0 ${getStatusColor(task.status)}`}
                     >
                       <option value="Pending">Pending</option>
