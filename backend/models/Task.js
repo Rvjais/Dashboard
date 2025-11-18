@@ -54,6 +54,13 @@ const taskSchema = new mongoose.Schema({
       }
     }
   },
+  assignedAt: {
+    type: Date,
+    default: Date.now
+  },
+  startedAt: {
+    type: Date
+  },
   completedAt: {
     type: Date
   }
@@ -61,8 +68,14 @@ const taskSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Update completedAt when status changes to completed
+// Update timestamps when status changes
 taskSchema.pre('save', function(next) {
+  // Track when task was started
+  if (this.isModified('status') && this.status === 'In Progress' && !this.startedAt) {
+    this.startedAt = new Date();
+  }
+
+  // Track when task was completed
   if (this.isModified('status') && this.status === 'Completed' && !this.completedAt) {
     this.completedAt = new Date();
   }
