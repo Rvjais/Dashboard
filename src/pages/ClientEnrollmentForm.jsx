@@ -231,6 +231,17 @@ const ClientEnrollmentForm = ({ onBack }) => {
       brandingTimeline: '',
       brandingBudgetRange: '',
     },
+    brandingDesign: {
+      hasLogo: '',
+      brandPersonality: '',
+      preferredColors: '',
+      designStyle: '',
+      inspirationalBrands: '',
+      designPreferences: [],
+      designNeeds: [],
+      timeline: '',
+      additionalRequirements: '',
+    },
     
     // AI Automation & Services
     aiAutomationNeeds: {
@@ -1918,9 +1929,9 @@ const ClientEnrollmentForm = ({ onBack }) => {
                     <label key={condition} className="flex items-center">
                       <input
                         type="checkbox"
-                        checked={formData.targetAudience.healthConditions.includes(condition)}
+                        checked={formData.targetAudience.healthConditions?.includes(condition) || false}
                         onChange={(e) => {
-                          const conditions = formData.targetAudience.healthConditions;
+                          const conditions = formData.targetAudience.healthConditions || [];
                           if (e.target.checked) {
                             handleNestedChange('targetAudience', 'healthConditions', [...conditions, condition]);
                           } else {
@@ -1944,9 +1955,9 @@ const ClientEnrollmentForm = ({ onBack }) => {
                     <label key={insurance} className="flex items-center">
                       <input
                         type="checkbox"
-                        checked={formData.targetAudience.insuranceTypes.includes(insurance)}
+                        checked={formData.targetAudience.insuranceTypes?.includes(insurance) || false}
                         onChange={(e) => {
-                          const insurances = formData.targetAudience.insuranceTypes;
+                          const insurances = formData.targetAudience.insuranceTypes || [];
                           if (e.target.checked) {
                             handleNestedChange('targetAudience', 'insuranceTypes', [...insurances, insurance]);
                           } else {
@@ -2033,13 +2044,13 @@ const ClientEnrollmentForm = ({ onBack }) => {
                 <label key={channel} className="flex items-center">
                   <input
                     type="checkbox"
-                    checked={formData.idealCustomerProfile.communicationChannels.includes(channel)}
+                    checked={formData.idealCustomerProfile.preferredCommunicationChannels?.includes(channel) || false}
                     onChange={(e) => {
-                      const channels = formData.idealCustomerProfile.communicationChannels;
+                      const channels = formData.idealCustomerProfile.preferredCommunicationChannels || [];
                       if (e.target.checked) {
-                        handleNestedChange('idealCustomerProfile', 'communicationChannels', [...channels, channel]);
+                        handleNestedChange('idealCustomerProfile', 'preferredCommunicationChannels', [...channels, channel]);
                       } else {
-                        handleNestedChange('idealCustomerProfile', 'communicationChannels', channels.filter(c => c !== channel));
+                        handleNestedChange('idealCustomerProfile', 'preferredCommunicationChannels', channels.filter(c => c !== channel));
                       }
                     }}
                     className="mr-2"
@@ -2229,9 +2240,9 @@ const ClientEnrollmentForm = ({ onBack }) => {
                 <label key={material} className="flex items-center">
                   <input
                     type="checkbox"
-                    checked={formData.brandingDesign.designNeeds.includes(material)}
+                    checked={formData.brandingDesign.designNeeds?.includes(material) || false}
                     onChange={(e) => {
-                      const needs = formData.brandingDesign.designNeeds;
+                      const needs = formData.brandingDesign.designNeeds || [];
                       if (e.target.checked) {
                         handleNestedChange('brandingDesign', 'designNeeds', [...needs, material]);
                       } else {
