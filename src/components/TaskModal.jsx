@@ -49,7 +49,7 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task, isAdmin }) => {
       try {
         const [depts, usersData] = await Promise.all([
           api.getDepartments(),
-          isAdmin ? api.getUsers() : []
+          api.getAllEmployees() // Now available for all users
         ]);
         setDepartments(depts);
         setUsers(usersData);
@@ -58,7 +58,7 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task, isAdmin }) => {
       }
     };
     fetchData();
-  }, [isAdmin]);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -88,7 +88,7 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task, isAdmin }) => {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
-          className="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto"
+          className="bg-white rounded-xl shadow-2xl w-full max-w-md sm:max-w-lg max-h-[90vh] overflow-y-auto"
         >
           <div className="p-6 border-b border-gray-200">
             <div className="flex items-center justify-between">
@@ -135,55 +135,51 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task, isAdmin }) => {
               />
             </div>
 
-            {isAdmin && (
-              <>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Department
-                  </label>
-                  <div className="relative">
-                    <SafeIcon icon={FiUsers} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                    <select
-                      name="department"
-                      value={formData.department}
-                      onChange={handleChange}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
-                      required
-                    >
-                      <option value="">Select department</option>
-                      {departments.map(dept => (
-                        <option key={dept} value={dept}>{dept}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Department
+              </label>
+              <div className="relative">
+                <SafeIcon icon={FiUsers} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <select
+                  name="department"
+                  value={formData.department}
+                  onChange={handleChange}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                  required
+                >
+                  <option value="">Select department</option>
+                  {departments.map(dept => (
+                    <option key={dept} value={dept}>{dept}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Assign To
-                  </label>
-                  <div className="relative">
-                    <SafeIcon icon={FiUser} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                    <select
-                      name="assignedTo"
-                      value={formData.assignedTo}
-                      onChange={handleChange}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
-                      required
-                    >
-                      <option value="">Select assignee</option>
-                      {users
-                        .filter(user => !formData.department || user.department === formData.department)
-                        .map(user => (
-                          <option key={user.id} value={user.name}>{user.name}</option>
-                        ))}
-                    </select>
-                  </div>
-                </div>
-              </>
-            )}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Assign To
+              </label>
+              <div className="relative">
+                <SafeIcon icon={FiUser} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <select
+                  name="assignedTo"
+                  value={formData.assignedTo}
+                  onChange={handleChange}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                  required
+                >
+                  <option value="">Select assignee</option>
+                  {users
+                    .filter(user => !formData.department || user.department === formData.department)
+                    .map(user => (
+                      <option key={user.id || user._id} value={user.name}>{user.name}</option>
+                    ))}
+                </select>
+              </div>
+            </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Priority
@@ -234,7 +230,7 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task, isAdmin }) => {
               </div>
             </div>
 
-            <div className="flex gap-3 pt-4">
+            <div className="flex flex-col sm:flex-row gap-3 pt-4">
               <button
                 type="button"
                 onClick={onClose}

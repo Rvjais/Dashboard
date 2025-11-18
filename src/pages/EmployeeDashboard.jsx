@@ -55,18 +55,13 @@ const EmployeeDashboard = () => {
 
   const handleTaskCreate = async (taskData) => {
     try {
-      const newTaskData = {
-        ...taskData,
-        status: 'Pending',
-        assignedTo: user.name,
-        assignedBy: user.name,
-        department: user.department
-      };
-      await api.createTask(newTaskData);
+      // No longer forcing assignment to self - employees can assign to anyone
+      await api.createTask(taskData);
       fetchDashboardData();
       setShowTaskModal(false);
     } catch (error) {
       console.error('Failed to create task:', error);
+      alert('Failed to create task: ' + error.message);
     }
   };
 
@@ -113,8 +108,8 @@ const EmployeeDashboard = () => {
         />
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-4">
             {user.department} Department Tasks
           </h3>
           <div className="space-y-3">
@@ -138,8 +133,8 @@ const EmployeeDashboard = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Recent Announcements
           </h3>
           <div className="space-y-3">
@@ -160,15 +155,15 @@ const EmployeeDashboard = () => {
 
   const renderMyTasks = () => (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm">
-      <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">My Tasks</h2>
+      <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">My Tasks</h2>
           <button
             onClick={() => setShowTaskModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-full sm:w-auto justify-center"
           >
             <SafeIcon icon={FiPlus} className="w-4 h-4" />
-            Create Personal Task
+            Create Task
           </button>
         </div>
       </div>
@@ -196,7 +191,7 @@ const EmployeeDashboard = () => {
       <div className="flex-1 flex flex-col overflow-hidden">
         <TopBar user={user} announcements={announcements} />
         
-        <main className="flex-1 overflow-x-hidden overflow-y-auto p-6">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 sm:p-6">
           <motion.div
             key={activeTab}
             initial={{ opacity: 0, y: 20 }}

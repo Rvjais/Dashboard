@@ -32,8 +32,8 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
-// Create new task
-router.post('/', auth, adminAuth, async (req, res) => {
+// Create new task (now available to all authenticated users)
+router.post('/', auth, async (req, res) => {
   try {
     const taskData = {
       ...req.body,
