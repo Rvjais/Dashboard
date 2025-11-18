@@ -205,7 +205,7 @@ export const api = {
 
   // ==================== CLIENT ONBOARDING ====================
   createClientOnboarding: async (onboardingData) => {
-    return await apiCall('/onboarding', {
+    return await apiCall('/clients', {
       method: 'POST',
       body: onboardingData
     });
@@ -225,7 +225,7 @@ export const api = {
   },
 
   updateClientOnboarding: async (recordId, updates) => {
-    return await apiCall(`/onboarding/${recordId}`, {
+    return await apiCall(`/clients/${clientId}`, {
       method: 'PUT',
       body: updates
     });

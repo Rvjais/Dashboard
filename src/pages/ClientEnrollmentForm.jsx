@@ -3,9 +3,13 @@ import React, { useState, useEffect } from 'react';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useToast } from '../hooks/useToast';
 import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
+import { api } from '../services/api';
 
 const ClientEnrollmentForm = ({ onBack }) => {
   const { isDark } = useTheme();
+  const { user } = useAuth();
+  const [employees, setEmployees] = useState([]);
   
   // Helper functions for theme-aware styling
   const getInputClasses = () => {
@@ -73,6 +77,7 @@ const ClientEnrollmentForm = ({ onBack }) => {
     formId: Date.now().toString(),
     lastSaved: null,
     completionPercentage: 0,
+    assignedEmployee: '', // New: for admin to assign to employee
     // Basic Information (Required fields marked with *)
     clientName: '', // *
     businessType: '',
@@ -786,6 +791,22 @@ const ClientEnrollmentForm = ({ onBack }) => {
 
     return () => clearTimeout(timeoutId);
   }, [formData]);
+
+  // Fetch employees for assignment (admin only)
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      if (user?.role === 'admin') {
+        try {
+          const response = await api.getUsers();
+          const employeeList = response.filter(emp => emp.role === 'employee');
+          setEmployees(employeeList);
+        } catch (error) {
+          console.error('Failed to fetch employees:', error);
+        }
+      }
+    };
+    fetchEmployees();
+  }, [user?.role]);
 
   // Handle form submission
   const handleSubmit = async () => {
@@ -2658,6 +2679,30 @@ const ClientEnrollmentForm = ({ onBack }) => {
         />
         {renderFieldError('clientName')}
       </div>
+      
+      {/* Assign Employee - Admin Only */}
+      {user?.role === 'admin' && (
+        <div>
+          <label className={getLabelClasses()}>
+            Assign to Employee
+          </label>
+          <select
+            value={formData.assignedEmployee}
+            onChange={(e) => handleInputChange('assignedEmployee', e.target.value)}
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              validationErrors.assignedEmployee ? 'border-red-500' : 'border-gray-300'
+            }`}
+          >
+            <option value="">-- Select Employee --</option>
+            {employees.map((emp) => (
+              <option key={emp._id} value={emp._id}>
+                {emp.name} ({emp.department})
+              </option>
+            ))}
+          </select>
+          {renderFieldError('assignedEmployee')}
+        </div>
+      )}
       
       {/* Primary Email */}
       <div>
