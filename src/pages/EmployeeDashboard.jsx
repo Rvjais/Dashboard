@@ -25,6 +25,10 @@ const EmployeeDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    const saved = localStorage.getItem('sidebarCollapsed');
+    return saved ? JSON.parse(saved) : false;
+  });
 
   useEffect(() => {
     fetchDashboardData();
@@ -187,7 +191,7 @@ const EmployeeDashboard = () => {
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} isAdmin={false} />
+      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} isAdmin={false} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
       
       <div className="flex-1 flex flex-col overflow-hidden">
         <TopBar user={user} announcements={announcements} />

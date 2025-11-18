@@ -190,6 +190,24 @@ export const api = {
     });
   },
 
+  getAllEmployees: async () => {
+    return await apiCall('/users/all', {
+      method: 'GET'
+    });
+  },
+
+  getEmployeesByDepartment: async (department) => {
+    return await apiCall(`/users/by-department/${department}`, {
+      method: 'GET'
+    });
+  },
+
+  getEmployeeProfile: async (employeeId) => {
+    return await apiCall(`/users/profile/${employeeId}`, {
+      method: 'GET'
+    });
+  },
+
   getDepartments: async () => {
     return await publicApiCall('/users/departments', {
       method: 'GET'
@@ -239,6 +257,19 @@ export const api = {
 
     const queryString = params.toString();
     return await apiCall(`/onboarding${queryString ? '?' + queryString : ''}`, {
+      method: 'GET'
+    });
+  },
+
+  // ==================== CLIENTS ====================
+  getAllClients: async () => {
+    return await apiCall('/clients', {
+      method: 'GET'
+    });
+  },
+
+  getEmployeeClients: async (employeeId) => {
+    return await apiCall(`/clients/employee/${employeeId}`, {
       method: 'GET'
     });
   },
