@@ -28,6 +28,10 @@ const AdminDashboard = () => {
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    const saved = localStorage.getItem('sidebarCollapsed');
+    return saved ? JSON.parse(saved) : false;
+  });
 
   useEffect(() => {
     fetchDashboardData();
@@ -196,7 +200,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} isAdmin={true} />
+      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} isAdmin={true} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
       
       <div className="flex-1 flex flex-col overflow-hidden">
         <TopBar user={user} announcements={announcements} />
