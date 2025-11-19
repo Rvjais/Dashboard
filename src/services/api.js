@@ -208,6 +208,17 @@ export const api = {
     });
   },
 
+  getEmployeeFilteredStats: async (employeeId, filters = {}) => {
+    const params = new URLSearchParams();
+    if (filters.startDate) params.append('startDate', filters.startDate);
+    if (filters.endDate) params.append('endDate', filters.endDate);
+
+    const queryString = params.toString();
+    return await apiCall(`/users/profile/${employeeId}/stats${queryString ? '?' + queryString : ''}`, {
+      method: 'GET'
+    });
+  },
+
   getDepartments: async () => {
     return await publicApiCall('/users/departments', {
       method: 'GET'

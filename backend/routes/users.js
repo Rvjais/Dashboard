@@ -116,4 +116,116 @@ router.get('/profile/:id', auth, async (req, res) => {
   }
 });
 
+// Get employee filtered statistics with date ranges
+router.get('/profile/:id/stats', auth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { startDate, endDate } = req.query;
+
+    // Get user details
+    const user = await User.findById(id).select('-password');
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Build date filter
+    let dateFilter = {};
+    if (startDate || endDate) {
+      dateFilter.completedAt = {};
+      if (startDate) {
+        dateFilter.completedAt.$gte = new Date(startDate);
+      }
+      if (endDate) {
+        // Set end date to end of day (23:59:59)
+        const endOfDay = new Date(endDate);
+        endOfDay.setHours(23, 59, 59, 999);
+        dateFilter.completedAt.$lte = endOfDay;
+      }
+    }
+
+    // Get all tasks for overall stats
+    const allTasks = await Task.find({ assignedTo: user.name });
+
+    // Get completed tasks within date range
+    const completedTasksFilter = {
+      assignedTo: user.name,
+      status: 'Completed',
+      ...dateFilter
+    };
+    const completedTasks = await Task.find(completedTasksFilter);
+
+    // Calculate total hours worked (from assignedAt to completedAt)
+    let totalMinutes = 0;
+    completedTasks.forEach(task => {
+      if (task.assignedAt && task.completedAt) {
+        const start = new Date(task.assignedAt);
+        const end = new Date(task.completedAt);
+        const diffMs = end - start;
+        const minutes = Math.floor(diffMs / (1000 * 60));
+        totalMinutes += minutes;
+      }
+    });
+
+    // Convert to hours and minutes
+    const totalHours = Math.floor(totalMinutes / 60);
+    const remainingMinutes = totalMinutes % 60;
+    const totalDays = Math.floor(totalHours / 24);
+    const hoursAfterDays = totalHours % 24;
+
+    // Format total time worked
+    let totalTimeWorked = '';
+    if (totalDays > 0) {
+      totalTimeWorked = `${totalDays}d ${hoursAfterDays}h ${remainingMinutes}m`;
+    } else if (totalHours > 0) {
+      totalTimeWorked = `${totalHours}h ${remainingMinutes}m`;
+    } else {
+      totalTimeWorked = `${remainingMinutes}m`;
+    }
+
+    // Calculate average time per task
+    let avgTimePerTask = '';
+    if (completedTasks.length > 0) {
+      const avgMinutes = Math.floor(totalMinutes / completedTasks.length);
+      const avgHours = Math.floor(avgMinutes / 60);
+      const avgMins = avgMinutes % 60;
+      if (avgHours > 0) {
+        avgTimePerTask = `${avgHours}h ${avgMins}m`;
+      } else {
+        avgTimePerTask = `${avgMins}m`;
+      }
+    } else {
+      avgTimePerTask = '0m';
+    }
+
+    // Overall task statistics
+    const overallStats = {
+      total: allTasks.length,
+      completed: allTasks.filter(t => t.status === 'Completed').length,
+      inProgress: allTasks.filter(t => t.status === 'In Progress').length,
+      pending: allTasks.filter(t => t.status === 'Pending').length
+    };
+
+    res.json({
+      filteredStats: {
+        completedTasksCount: completedTasks.length,
+        totalTimeWorked,
+        totalMinutes,
+        totalHours,
+        totalDays,
+        avgTimePerTask,
+        tasks: completedTasks
+      },
+      overallStats,
+      dateRange: {
+        startDate: startDate || null,
+        endDate: endDate || null
+      }
+    });
+  } catch (error) {
+    console.error('Get employee filtered stats error:', error);
+    res.status(500).json({ error: 'Failed to fetch employee statistics' });
+  }
+});
+
 module.exports = router;
