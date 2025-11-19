@@ -99,12 +99,24 @@ router.put('/:id', auth, async (req, res) => {
 });
 
 // Delete task
-router.delete('/:id', auth, adminAuth, async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
   try {
     const task = await Task.findById(req.params.id);
-    
+
     if (!task) {
       return res.status(404).json({ error: 'Task not found' });
+    }
+
+    // Check permissions
+    // Admin can delete any task
+    // User can only delete tasks they assigned (assignedBy === user.name)
+    const isAdmin = req.user.role === 'admin';
+    const isTaskAssigner = task.assignedBy === req.user.name;
+
+    if (!isAdmin && !isTaskAssigner) {
+      return res.status(403).json({
+        error: 'Not authorized to delete this task. Only the person who assigned the task or an admin can delete it.'
+      });
     }
 
     // Update user stats if task was completed
@@ -112,8 +124,8 @@ router.delete('/:id', auth, adminAuth, async (req, res) => {
       await User.findOneAndUpdate(
         { name: task.assignedTo },
         {
-          $inc: { 
-            completedTasks: -1, 
+          $inc: {
+            completedTasks: -1,
             points: -task.points
           }
         }

@@ -79,11 +79,14 @@ const AdminDashboard = () => {
   };
 
   const handleTaskDelete = async (taskId) => {
-    try {
-      await api.deleteTask(taskId);
-      fetchDashboardData();
-    } catch (error) {
-      console.error('Failed to delete task:', error);
+    if (window.confirm('Are you sure you want to delete this task?')) {
+      try {
+        await api.deleteTask(taskId);
+        fetchDashboardData();
+      } catch (error) {
+        console.error('Failed to delete task:', error);
+        alert('Failed to delete task: ' + error.message);
+      }
     }
   };
 
@@ -186,6 +189,7 @@ const AdminDashboard = () => {
         onEdit={setEditingTask}
         onDelete={handleTaskDelete}
         isAdmin={true}
+        currentUser={user}
       />
     </div>
   );
