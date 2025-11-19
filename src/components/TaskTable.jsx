@@ -6,9 +6,18 @@ import { format, formatDistanceToNow, differenceInHours, differenceInMinutes } f
 
 const { FiEdit2, FiTrash2, FiFilter, FiSearch, FiClock, FiUser } = FiIcons;
 
-const TaskTable = ({ tasks, onEdit, onDelete, onStatusUpdate, isAdmin }) => {
+const TaskTable = ({ tasks, onEdit, onDelete, onStatusUpdate, isAdmin, currentUser }) => {
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
+
+  // Check if current user can delete a task
+  const canDeleteTask = (task) => {
+    if (!currentUser) return false;
+    // Admin can delete any task
+    if (isAdmin) return true;
+    // User can delete tasks they assigned
+    return task.assignedBy === currentUser.name;
+  };
 
   const filteredTasks = tasks.filter(task => {
     const matchesFilter = filter === 'all' || task.status === filter;
@@ -115,7 +124,7 @@ const TaskTable = ({ tasks, onEdit, onDelete, onStatusUpdate, isAdmin }) => {
                 >
                   <SafeIcon icon={FiEdit2} className="w-5 h-5" />
                 </button>
-                {isAdmin && onDelete && (
+                {canDeleteTask(task) && onDelete && (
                   <button
                     onClick={() => onDelete(task._id)}
                     className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
@@ -323,7 +332,7 @@ const TaskTable = ({ tasks, onEdit, onDelete, onStatusUpdate, isAdmin }) => {
                     >
                       <SafeIcon icon={FiEdit2} className="w-4 h-4" />
                     </button>
-                    {isAdmin && onDelete && (
+                    {canDeleteTask(task) && onDelete && (
                       <button
                         onClick={() => onDelete(task._id)}
                         className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"

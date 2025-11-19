@@ -76,6 +76,18 @@ const EmployeeDashboard = () => {
     }
   };
 
+  const handleTaskDelete = async (taskId) => {
+    if (window.confirm('Are you sure you want to delete this task?')) {
+      try {
+        await api.deleteTask(taskId);
+        fetchDashboardData();
+      } catch (error) {
+        console.error('Failed to delete task:', error);
+        alert('Failed to delete task: ' + error.message);
+      }
+    }
+  };
+
   const myTasks = tasks.filter(task => task.assignedTo === user.name);
   const departmentTasks = tasks.filter(task => task.department === user.department);
 
@@ -170,8 +182,10 @@ const EmployeeDashboard = () => {
       <TaskTable
         tasks={myTasks}
         onEdit={setEditingTask}
+        onDelete={handleTaskDelete}
         onStatusUpdate={handleTaskUpdate}
         isAdmin={false}
+        currentUser={user}
       />
     </div>
   );
