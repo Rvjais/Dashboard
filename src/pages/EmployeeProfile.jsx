@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiArrowLeft, FiUser, FiCheckCircle, FiClock, FiTrendingUp, FiUsers, FiBriefcase } from 'react-icons/fi';
+import { FiArrowLeft, FiUser, FiCheckCircle, FiClock, FiTrendingUp, FiUsers, FiBriefcase, FiCalendar, FiFilter } from 'react-icons/fi';
 import { api } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useTheme } from '../contexts/ThemeContext';
-import { format, differenceInHours, differenceInMinutes } from 'date-fns';
+import { format, differenceInHours, differenceInMinutes, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
 
 const EmployeeProfile = () => {
   const { id } = useParams();
@@ -15,9 +15,24 @@ const EmployeeProfile = () => {
   const [profileData, setProfileData] = useState(null);
   const [error, setError] = useState(null);
 
+  // Filter states
+  const [filterType, setFilterType] = useState('all'); // 'all', 'today', 'week', 'month', 'custom'
+  const [customStartDate, setCustomStartDate] = useState('');
+  const [customEndDate, setCustomEndDate] = useState('');
+  const [filteredStats, setFilteredStats] = useState(null);
+  const [loadingStats, setLoadingStats] = useState(false);
+
   useEffect(() => {
     fetchEmployeeProfile();
   }, [id]);
+
+  useEffect(() => {
+    if (filterType !== 'all') {
+      fetchFilteredStats();
+    } else {
+      setFilteredStats(null);
+    }
+  }, [filterType, customStartDate, customEndDate, id]);
 
   const fetchEmployeeProfile = async () => {
     try {
@@ -30,6 +45,54 @@ const EmployeeProfile = () => {
       setError('Failed to load employee profile');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchFilteredStats = async () => {
+    try {
+      setLoadingStats(true);
+      let startDate, endDate;
+
+      // Calculate date range based on filter type
+      const now = new Date();
+      switch (filterType) {
+        case 'today':
+          startDate = startOfDay(now);
+          endDate = endOfDay(now);
+          break;
+        case 'week':
+          startDate = startOfWeek(now);
+          endDate = endOfWeek(now);
+          break;
+        case 'month':
+          startDate = startOfMonth(now);
+          endDate = endOfMonth(now);
+          break;
+        case 'custom':
+          if (customStartDate && customEndDate) {
+            startDate = new Date(customStartDate);
+            endDate = new Date(customEndDate);
+          } else {
+            setLoadingStats(false);
+            return;
+          }
+          break;
+        default:
+          setLoadingStats(false);
+          return;
+      }
+
+      const filters = {
+        startDate: startDate.toISOString().split('T')[0],
+        endDate: endDate.toISOString().split('T')[0]
+      };
+
+      const data = await api.getEmployeeFilteredStats(id, filters);
+      setFilteredStats(data);
+    } catch (err) {
+      console.error('Error fetching filtered stats:', err);
+    } finally {
+      setLoadingStats(false);
     }
   };
 
@@ -293,6 +356,196 @@ const EmployeeProfile = () => {
             </div>
           </motion.div>
         </div>
+
+        {/* Task Filters */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className={`${
+            theme === 'dark' ? 'bg-gray-800' : 'bg-white'
+          } rounded-2xl shadow-lg p-6 mb-6`}
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <FiFilter className={`${theme === 'dark' ? 'text-blue-400' : 'text-blue-600'}`} />
+            <h2 className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
+              Task Performance Filters
+            </h2>
+          </div>
+
+          {/* Filter Buttons */}
+          <div className="flex flex-wrap gap-3 mb-4">
+            <button
+              onClick={() => setFilterType('all')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                filterType === 'all'
+                  ? 'bg-blue-500 text-white'
+                  : theme === 'dark'
+                  ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              All Time
+            </button>
+            <button
+              onClick={() => setFilterType('today')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                filterType === 'today'
+                  ? 'bg-blue-500 text-white'
+                  : theme === 'dark'
+                  ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              Today
+            </button>
+            <button
+              onClick={() => setFilterType('week')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                filterType === 'week'
+                  ? 'bg-blue-500 text-white'
+                  : theme === 'dark'
+                  ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              This Week
+            </button>
+            <button
+              onClick={() => setFilterType('month')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                filterType === 'month'
+                  ? 'bg-blue-500 text-white'
+                  : theme === 'dark'
+                  ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              This Month
+            </button>
+            <button
+              onClick={() => setFilterType('custom')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                filterType === 'custom'
+                  ? 'bg-blue-500 text-white'
+                  : theme === 'dark'
+                  ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              Custom Range
+            </button>
+          </div>
+
+          {/* Custom Date Range Inputs */}
+          {filterType === 'custom' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Start Date
+                </label>
+                <input
+                  type="date"
+                  value={customStartDate}
+                  onChange={(e) => setCustomStartDate(e.target.value)}
+                  className={`w-full px-4 py-2 rounded-lg border ${
+                    theme === 'dark'
+                      ? 'bg-gray-700 border-gray-600 text-white'
+                      : 'bg-white border-gray-300 text-gray-900'
+                  } focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                />
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                  End Date
+                </label>
+                <input
+                  type="date"
+                  value={customEndDate}
+                  onChange={(e) => setCustomEndDate(e.target.value)}
+                  className={`w-full px-4 py-2 rounded-lg border ${
+                    theme === 'dark'
+                      ? 'bg-gray-700 border-gray-600 text-white'
+                      : 'bg-white border-gray-300 text-gray-900'
+                  } focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Filtered Statistics */}
+          {filterType !== 'all' && (
+            <div className="mt-6">
+              {loadingStats ? (
+                <div className="text-center py-8">
+                  <LoadingSpinner />
+                </div>
+              ) : filteredStats ? (
+                <div>
+                  <h3 className={`text-lg font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
+                    Performance Summary
+                    {filteredStats.dateRange.startDate && filteredStats.dateRange.endDate && (
+                      <span className={`text-sm font-normal ml-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                        ({format(new Date(filteredStats.dateRange.startDate), 'MMM dd, yyyy')} - {format(new Date(filteredStats.dateRange.endDate), 'MMM dd, yyyy')})
+                      </span>
+                    )}
+                  </h3>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Completed Tasks Card */}
+                    <div className={`p-5 rounded-xl ${
+                      theme === 'dark' ? 'bg-gray-700' : 'bg-gradient-to-br from-blue-50 to-blue-100'
+                    }`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <FiCheckCircle className="text-blue-600 dark:text-blue-400 text-2xl" />
+                        <span className={`text-3xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
+                          {filteredStats.filteredStats.completedTasksCount}
+                        </span>
+                      </div>
+                      <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} font-medium`}>
+                        Tasks Completed
+                      </p>
+                    </div>
+
+                    {/* Total Time Worked Card */}
+                    <div className={`p-5 rounded-xl ${
+                      theme === 'dark' ? 'bg-gray-700' : 'bg-gradient-to-br from-green-50 to-green-100'
+                    }`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <FiClock className="text-green-600 dark:text-green-400 text-2xl" />
+                        <span className={`text-3xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
+                          {filteredStats.filteredStats.totalTimeWorked}
+                        </span>
+                      </div>
+                      <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} font-medium`}>
+                        Total Time Worked
+                      </p>
+                    </div>
+
+                    {/* Average Time Per Task Card */}
+                    <div className={`p-5 rounded-xl ${
+                      theme === 'dark' ? 'bg-gray-700' : 'bg-gradient-to-br from-purple-50 to-purple-100'
+                    }`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <FiTrendingUp className="text-purple-600 dark:text-purple-400 text-2xl" />
+                        <span className={`text-3xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
+                          {filteredStats.filteredStats.avgTimePerTask}
+                        </span>
+                      </div>
+                      <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} font-medium`}>
+                        Avg. Time per Task
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <p className={`text-center py-4 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                  No data available for the selected period
+                </p>
+              )}
+            </div>
+          )}
+        </motion.div>
 
         {/* Clients Section */}
         <motion.div
