@@ -76,6 +76,32 @@ router.get('/profile/:id', auth, async (req, res) => {
   try {
     const { id } = req.params;
 
+    // Handle admin user (hardcoded user with no database entry)
+    if (id === 'admin-user') {
+      return res.json({
+        user: {
+          _id: 'admin-user',
+          id: 'admin-user',
+          name: 'Admin',
+          role: 'admin',
+          department: 'Admin',
+          completedTasks: 0,
+          points: 0,
+          streak: 0
+        },
+        clients: [],
+        tasks: [],
+        taskStats: {
+          total: 0,
+          completed: 0,
+          inProgress: 0,
+          pending: 0,
+          highPriority: 0
+        },
+        completionRate: 0
+      });
+    }
+
     // Get user details - check if id is a valid ObjectId or treat it as a username
     let user;
     if (mongoose.Types.ObjectId.isValid(id) && id.length === 24) {
@@ -128,6 +154,31 @@ router.get('/profile/:id/stats', auth, async (req, res) => {
   try {
     const { id } = req.params;
     const { startDate, endDate } = req.query;
+
+    // Handle admin user (hardcoded user with no database entry)
+    if (id === 'admin-user') {
+      return res.json({
+        filteredStats: {
+          completedTasksCount: 0,
+          totalTimeWorked: '0m',
+          totalMinutes: 0,
+          totalHours: 0,
+          totalDays: 0,
+          avgTimePerTask: '0m',
+          tasks: []
+        },
+        overallStats: {
+          total: 0,
+          completed: 0,
+          inProgress: 0,
+          pending: 0
+        },
+        dateRange: {
+          startDate: startDate || null,
+          endDate: endDate || null
+        }
+      });
+    }
 
     // Get user details - check if id is a valid ObjectId or treat it as a username
     let user;
