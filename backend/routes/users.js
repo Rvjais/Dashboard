@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const User = require('../models/User');
 const Task = require('../models/Task');
 const Client = require('../models/Client');
@@ -75,15 +76,21 @@ router.get('/profile/:id', auth, async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Get user details
-    const user = await User.findById(id).select('-password');
+    // Get user details - check if id is a valid ObjectId or treat it as a username
+    let user;
+    if (mongoose.Types.ObjectId.isValid(id) && id.length === 24) {
+      user = await User.findById(id).select('-password');
+    } else {
+      // Try to find by name if not a valid ObjectId
+      user = await User.findOne({ name: id }).select('-password');
+    }
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Get user's clients
-    const clients = await Client.find({ assignedEmployee: id });
+    // Get user's clients (use the actual user._id from the found user)
+    const clients = await Client.find({ assignedEmployee: user._id });
 
     // Get user's tasks
     const tasks = await Task.find({ assignedTo: user.name })
@@ -122,8 +129,14 @@ router.get('/profile/:id/stats', auth, async (req, res) => {
     const { id } = req.params;
     const { startDate, endDate } = req.query;
 
-    // Get user details
-    const user = await User.findById(id).select('-password');
+    // Get user details - check if id is a valid ObjectId or treat it as a username
+    let user;
+    if (mongoose.Types.ObjectId.isValid(id) && id.length === 24) {
+      user = await User.findById(id).select('-password');
+    } else {
+      // Try to find by name if not a valid ObjectId
+      user = await User.findOne({ name: id }).select('-password');
+    }
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
