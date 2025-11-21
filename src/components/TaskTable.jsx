@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../common/SafeIcon';
 import { format, formatDistanceToNow, differenceInHours, differenceInMinutes } from 'date-fns';
@@ -105,30 +104,28 @@ const TaskTable = ({ tasks, onEdit, onDelete, onStatusUpdate, isAdmin, currentUs
         </div>
       </div>
 
-      {/* Mobile Card View - Modern Minimal */}
+      {/* Mobile Card View */}
       <div className="block lg:hidden space-y-3">
-        {filteredTasks.map((task, index) => (
-          <motion.div
+        {filteredTasks.map((task) => (
+          <div
             key={task._id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
-            whileHover={{ y: -2 }}
-            className="glass-effect rounded-3xl p-5 border border-gray-200/50 dark:border-gray-700/50 hover-lift"
+            className="glass-effect rounded-3xl p-5 border border-gray-200/50 dark:border-gray-700/50"
           >
             <div className="flex justify-between items-start mb-3">
-              <h3 className="text-lg font-semibold text-gray-900">{task.title}</h3>
-              <div className="flex gap-2">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white flex-1 mr-2">{task.title}</h3>
+              <div className="flex gap-2 flex-shrink-0">
                 <button
                   onClick={() => onEdit(task)}
-                  className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
+                  className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 p-2 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                  aria-label="Edit task"
                 >
                   <SafeIcon icon={FiEdit2} className="w-5 h-5" />
                 </button>
                 {canDeleteTask(task) && onDelete && (
                   <button
                     onClick={() => onDelete(task._id)}
-                    className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
+                    className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 p-2 rounded hover:bg-red-50 dark:hover:bg-red-900/20 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                    aria-label="Delete task"
                   >
                     <SafeIcon icon={FiTrash2} className="w-5 h-5" />
                   </button>
@@ -136,7 +133,7 @@ const TaskTable = ({ tasks, onEdit, onDelete, onStatusUpdate, isAdmin, currentUs
               </div>
             </div>
 
-            <p className="text-sm text-gray-600 mb-3">{task.description}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{task.description}</p>
 
             <div className="grid grid-cols-2 gap-3 mb-3">
               <div>
@@ -210,17 +207,17 @@ const TaskTable = ({ tasks, onEdit, onDelete, onStatusUpdate, isAdmin, currentUs
             </div>
 
             {task.completedAt && (
-              <div className="pt-2 border-t border-gray-200">
-                <span className="text-xs text-gray-500">Completed At</span>
-                <div className="mt-1 text-sm text-green-600">{formatTimestamp(task.completedAt)}</div>
+              <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                <span className="text-xs text-gray-500 dark:text-gray-400">Completed At</span>
+                <div className="mt-1 text-sm text-green-600 dark:text-green-400">{formatTimestamp(task.completedAt)}</div>
               </div>
             )}
-          </motion.div>
+          </div>
         ))}
 
         {filteredTasks.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-gray-500">No tasks found matching your criteria.</p>
+            <p className="text-gray-500 dark:text-gray-400">No tasks found matching your criteria.</p>
           </div>
         )}
       </div>
@@ -228,48 +225,45 @@ const TaskTable = ({ tasks, onEdit, onDelete, onStatusUpdate, isAdmin, currentUs
       {/* Desktop Table View */}
       <div className="hidden lg:block overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Task
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Department
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Assigned To
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Assigned By
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Priority
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Assigned At
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Duration
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Deadline
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {filteredTasks.map((task, index) => (
-              <motion.tr
+          <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+            {filteredTasks.map((task) => (
+              <tr
                 key={task._id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className="hover:bg-gray-50"
+                className="hover:bg-gray-50 dark:hover:bg-gray-800"
               >
                 <td className="px-4 py-4">
                   <div className="max-w-xs">
@@ -329,28 +323,30 @@ const TaskTable = ({ tasks, onEdit, onDelete, onStatusUpdate, isAdmin, currentUs
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => onEdit(task)}
-                      className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
+                      className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 p-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                      aria-label="Edit task"
                     >
                       <SafeIcon icon={FiEdit2} className="w-4 h-4" />
                     </button>
                     {canDeleteTask(task) && onDelete && (
                       <button
                         onClick={() => onDelete(task._id)}
-                        className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
+                        className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20"
+                        aria-label="Delete task"
                       >
                         <SafeIcon icon={FiTrash2} className="w-4 h-4" />
                       </button>
                     )}
                   </div>
                 </td>
-              </motion.tr>
+              </tr>
             ))}
           </tbody>
         </table>
 
         {filteredTasks.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-gray-500">No tasks found matching your criteria.</p>
+            <p className="text-gray-500 dark:text-gray-400">No tasks found matching your criteria.</p>
           </div>
         )}
       </div>
