@@ -22,7 +22,7 @@ const apiCall = async (endpoint, options = {}) => {
 
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-    
+
     // Handle unauthorized (token expired or invalid)
     if (response.status === 401) {
       localStorage.removeItem('token');
@@ -31,9 +31,26 @@ const apiCall = async (endpoint, options = {}) => {
       throw new Error('Unauthorized - please login again');
     }
 
+    // Check if response is JSON
+    const contentType = response.headers.get('content-type');
+    const isJson = contentType && contentType.includes('application/json');
+
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || `HTTP ${response.status}`);
+      if (isJson) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP ${response.status}`);
+      } else {
+        // Backend returned HTML or other non-JSON response (likely server error)
+        const text = await response.text();
+        console.error(`Server returned non-JSON response: ${text.substring(0, 200)}`);
+        throw new Error(`Server error: Backend returned HTML instead of JSON (${response.status}). Is the backend running?`);
+      }
+    }
+
+    if (!isJson) {
+      const text = await response.text();
+      console.error(`Expected JSON but got: ${text.substring(0, 200)}`);
+      throw new Error('Server returned HTML instead of JSON. Is the backend running correctly?');
     }
 
     return await response.json();
@@ -62,9 +79,26 @@ const publicApiCall = async (endpoint, options = {}) => {
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
 
+    // Check if response is JSON
+    const contentType = response.headers.get('content-type');
+    const isJson = contentType && contentType.includes('application/json');
+
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || `HTTP ${response.status}`);
+      if (isJson) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP ${response.status}`);
+      } else {
+        // Backend returned HTML or other non-JSON response (likely server error)
+        const text = await response.text();
+        console.error(`Server returned non-JSON response: ${text.substring(0, 200)}`);
+        throw new Error(`Server error: Backend returned HTML instead of JSON (${response.status}). Is the backend running?`);
+      }
+    }
+
+    if (!isJson) {
+      const text = await response.text();
+      console.error(`Expected JSON but got: ${text.substring(0, 200)}`);
+      throw new Error('Server returned HTML instead of JSON. Is the backend running correctly?');
     }
 
     return await response.json();
