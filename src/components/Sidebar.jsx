@@ -24,6 +24,7 @@ const Sidebar = ({ activeTab, setActiveTab, isAdmin, isCollapsed, setIsCollapsed
     { id: 'overview', label: 'Overview', icon: FiHome },
     { id: 'tasks', label: 'Tasks', icon: FiCheckSquare },
     { id: 'clients', label: 'Clients', icon: FiBriefcase },
+    { id: 'departments', label: 'Departments', icon: FiUsers },
     { id: 'announcements', label: 'Announcements', icon: FiBell },
     { id: 'leaderboard', label: 'Leaderboard', icon: FiTrophy }
   ];
