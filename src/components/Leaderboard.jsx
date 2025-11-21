@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../common/SafeIcon';
 import { api } from '../services/api';
@@ -63,21 +62,13 @@ const Leaderboard = () => {
 
   return (
     <div className="space-y-6">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="glass-effect rounded-3xl p-6 sm:p-8 border border-gray-200/50 dark:border-gray-700/50"
-      >
-        {/* Header - Minimal & Clean */}
+      <div className="glass-effect rounded-3xl p-6 sm:p-8 border border-gray-200/50 dark:border-gray-700/50">
+        {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div className="flex items-center gap-4">
-            <motion.div
-              whileHover={{ rotate: 360, scale: 1.1 }}
-              transition={{ duration: 0.6 }}
-              className="w-14 h-14 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg"
-            >
+            <div className="w-14 h-14 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg">
               <SafeIcon icon={FiTrophy} className="w-7 h-7 text-white" />
-            </motion.div>
+            </div>
             <div>
               <h2 className="text-2xl sm:text-3xl font-bold gradient-text">
                 Leaderboard
@@ -99,16 +90,12 @@ const Leaderboard = () => {
           </select>
         </div>
 
-        {/* Leaderboard Items - Modern Minimal Design */}
+        {/* Leaderboard Items */}
         <div className="space-y-3">
           {leaderboardData.map((user, index) => (
-            <motion.div
+            <div
               key={user._id || user.id || index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05, type: "spring", stiffness: 100 }}
-              whileHover={{ scale: 1.01, y: -2 }}
-              className={`group relative overflow-hidden rounded-3xl transition-smooth hover-lift ${
+              className={`relative overflow-hidden rounded-3xl transition-smooth ${
                 index === 0
                   ? 'bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 border-2 border-yellow-300 dark:border-yellow-700 shadow-lg'
                   : index === 1
@@ -118,21 +105,13 @@ const Leaderboard = () => {
                   : 'bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-gray-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-600'
               }`}
             >
-              {/* Shimmer Effect on Top 3 */}
-              {index < 3 && (
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent transform -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000 ease-out"></div>
-              )}
-
               <div className="relative flex items-center gap-4 p-5">
-                {/* Rank Badge - Minimal */}
-                <motion.div
-                  whileHover={{ rotate: 12, scale: 1.1 }}
-                  className={`flex-shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center shadow-md ${getRankBadgeColor(index + 1)}`}
-                >
+                {/* Rank Badge */}
+                <div className={`flex-shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center shadow-md ${getRankBadgeColor(index + 1)}`}>
                   {getRankIcon(index + 1)}
-                </motion.div>
+                </div>
 
-                {/* User Info - Clean Layout */}
+                {/* User Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate">
@@ -147,7 +126,7 @@ const Leaderboard = () => {
                   </p>
                 </div>
 
-                {/* Points & Streak - Compact */}
+                {/* Points & Streak */}
                 <div className="flex items-center gap-4">
                   <div className="text-right">
                     <div className="text-3xl font-bold gradient-text">
@@ -158,37 +137,30 @@ const Leaderboard = () => {
 
                   {/* Streak Badge */}
                   {user.streak > 0 && (
-                    <motion.div
-                      whileHover={{ scale: 1.05 }}
-                      className="flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full shadow-md"
-                    >
+                    <div className="flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full shadow-md">
                       <SafeIcon icon={FiAward} className="w-4 h-4 text-white" />
                       <span className="text-sm font-bold text-white">
                         {user.streak}d
                       </span>
-                    </motion.div>
+                    </div>
                   )}
                 </div>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
 
-        {/* Empty State - Minimal */}
+        {/* Empty State */}
         {leaderboardData.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-16"
-          >
+          <div className="text-center py-16">
             <div className="w-20 h-20 mx-auto mb-4 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
               <SafeIcon icon={FiUsers} className="w-10 h-10 text-gray-400" />
             </div>
             <p className="text-lg text-gray-600 dark:text-gray-400 font-medium">No data yet</p>
             <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">Complete tasks to appear here!</p>
-          </motion.div>
+          </div>
         )}
-      </motion.div>
+      </div>
     </div>
   );
 };
