@@ -47,6 +47,11 @@ const clientSchema = new mongoose.Schema({
     assignedEmployee: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
+    },
+    status: {
+        type: String,
+        enum: ['pending', 'approved', 'rejected'],
+        default: 'pending'
     }
 }, {
     timestamps: true

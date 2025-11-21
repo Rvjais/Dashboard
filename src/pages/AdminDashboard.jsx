@@ -24,6 +24,9 @@ const AdminDashboard = () => {
   const [tasks, setTasks] = useState([]);
   const [stats, setStats] = useState(null);
   const [announcements, setAnnouncements] = useState([]);
+  const [pendingClients, setPendingClients] = useState([]);
+  const [allClients, setAllClients] = useState([]);
+  const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
@@ -40,15 +43,21 @@ const AdminDashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const [tasksData, statsData, announcementsData] = await Promise.all([
+      const [tasksData, statsData, announcementsData, pendingClientsData, allClientsData, employeesData] = await Promise.all([
         api.getTasks(),
         api.getTaskStats(),
-        api.getAnnouncements()
+        api.getAnnouncements(),
+        api.getPendingClients(),
+        api.getAllClients(),
+        api.getAllEmployees()
       ]);
-      
+
       setTasks(tasksData);
       setStats(statsData);
       setAnnouncements(announcementsData);
+      setPendingClients(pendingClientsData);
+      setAllClients(allClientsData);
+      setEmployees(employeesData);
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
     } finally {
@@ -97,6 +106,30 @@ const AdminDashboard = () => {
       setShowAnnouncementModal(false);
     } catch (error) {
       console.error('Failed to create announcement:', error);
+    }
+  };
+
+  const handleApproveClient = async (clientId, assignedEmployee) => {
+    try {
+      await api.approveClient(clientId, assignedEmployee);
+      fetchDashboardData();
+      alert('Client approved successfully!');
+    } catch (error) {
+      console.error('Failed to approve client:', error);
+      alert('Failed to approve client: ' + error.message);
+    }
+  };
+
+  const handleRejectClient = async (clientId) => {
+    if (window.confirm('Are you sure you want to reject this client?')) {
+      try {
+        await api.rejectClient(clientId);
+        fetchDashboardData();
+        alert('Client rejected successfully!');
+      } catch (error) {
+        console.error('Failed to reject client:', error);
+        alert('Failed to reject client: ' + error.message);
+      }
     }
   };
 
@@ -170,6 +203,222 @@ const AdminDashboard = () => {
     </div>
   );
 
+  const renderClients = () => {
+    const [selectedEmployee, setSelectedEmployee] = useState({});
+    const [activeClientTab, setActiveClientTab] = useState('pending');
+
+    return (
+      <div className="space-y-6">
+        {/* Tab Navigation */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4">
+          <div className="flex gap-4 border-b border-gray-200 dark:border-gray-700">
+            <button
+              onClick={() => setActiveClientTab('pending')}
+              className={`px-4 py-2 font-medium transition-colors ${
+                activeClientTab === 'pending'
+                  ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              Pending Onboardings ({pendingClients.length})
+            </button>
+            <button
+              onClick={() => setActiveClientTab('all')}
+              className={`px-4 py-2 font-medium transition-colors ${
+                activeClientTab === 'all'
+                  ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              All Clients ({allClients.length})
+            </button>
+          </div>
+        </div>
+
+        {/* Pending Clients */}
+        {activeClientTab === 'pending' && (
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm">
+            <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
+                Pending Client Onboardings
+              </h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                Review and approve new client submissions
+              </p>
+            </div>
+            <div className="overflow-x-auto">
+              {pendingClients.length === 0 ? (
+                <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+                  No pending clients to review
+                </div>
+              ) : (
+                <table className="w-full">
+                  <thead className="bg-gray-50 dark:bg-gray-900">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Client Name
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Business Type
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Contact
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Location
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Assign To
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                    {pendingClients.map((client) => (
+                      <tr key={client._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900 dark:text-white">
+                            {client.name}
+                          </div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
+                            {client.industry}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                            {client.businessType || 'N/A'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm text-gray-900 dark:text-white">{client.email}</div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">{client.phone}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900 dark:text-white">
+                            {client.city ? `${client.city}, ${client.state}` : client.state || 'N/A'}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <select
+                            value={selectedEmployee[client._id] || ''}
+                            onChange={(e) => setSelectedEmployee({ ...selectedEmployee, [client._id]: e.target.value })}
+                            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                          >
+                            <option value="">Select Employee</option>
+                            {employees.map((emp) => (
+                              <option key={emp._id} value={emp._id}>
+                                {emp.name} ({emp.department})
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                          <button
+                            onClick={() => handleApproveClient(client._id, selectedEmployee[client._id])}
+                            className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            onClick={() => handleRejectClient(client._id)}
+                            className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                          >
+                            Reject
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* All Clients */}
+        {activeClientTab === 'all' && (
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm">
+            <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
+                All Clients
+              </h2>
+            </div>
+            <div className="overflow-x-auto">
+              {allClients.length === 0 ? (
+                <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+                  No clients found
+                </div>
+              ) : (
+                <table className="w-full">
+                  <thead className="bg-gray-50 dark:bg-gray-900">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Client Name
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Business Type
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Contact
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Assigned To
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Status
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                    {allClients.map((client) => (
+                      <tr key={client._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900 dark:text-white">
+                            {client.name}
+                          </div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
+                            {client.industry}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                            {client.businessType || 'N/A'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm text-gray-900 dark:text-white">{client.email}</div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">{client.phone}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900 dark:text-white">
+                            {client.assignedEmployee ? client.assignedEmployee.name : 'Unassigned'}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                            client.status === 'approved'
+                              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                              : client.status === 'rejected'
+                              ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                              : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                          }`}>
+                            {client.status || 'pending'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const renderTasks = () => (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm">
       <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
@@ -218,6 +467,7 @@ const AdminDashboard = () => {
           >
             {activeTab === 'overview' && renderOverview()}
             {activeTab === 'tasks' && renderTasks()}
+            {activeTab === 'clients' && renderClients()}
             {activeTab === 'announcements' && (
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 sm:p-6">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">

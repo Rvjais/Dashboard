@@ -6,26 +6,40 @@ import { api } from './api';
  */
 export const ClientOnboardingService = {
   /**
-   * Save complete onboarding data to MongoDB
+   * Save complete onboarding data to MongoDB (Public - no auth required)
    * @param {Object} formData - Complete form data to save
    * @returns {Promise<Object>} Saved record with ID
    */
   saveOnboardingData: async (formData) => {
     try {
-      const response = await api.createClientOnboarding({
-        ...formData,
-        status: 'submitted',
-        submittedAt: new Date().toISOString(),
-        completionPercentage: calculateCompletionPercentage(formData)
-      });
+      // Prepare data for the new Client model structure
+      const clientData = {
+        name: formData.clientName,
+        businessType: formData.businessType || 'individual',
+        industry: formData.industry || 'healthcare',
+        email: formData.primaryEmail,
+        phone: formData.phoneNumber,
+        address: formData.businessAddress,
+        website: formData.websiteUrl,
+        gstNumber: formData.indianBusinessDetails?.gstin || '',
+        panNumber: formData.indianBusinessDetails?.panNumber || '',
+        state: formData.indianBusinessDetails?.state || '',
+        city: formData.indianBusinessDetails?.city || '',
+        pincode: formData.indianBusinessDetails?.pincode || '',
+        businessRegistration: formData.indianBusinessDetails?.businessRegistrationType || '',
+        status: 'pending' // All public submissions are pending by default
+      };
 
-      if (!response || !response._id) {
-        throw new Error('Failed to save onboarding data - no record ID returned');
+      const response = await api.submitClientOnboarding(clientData);
+
+      if (!response || !response.client) {
+        throw new Error('Failed to save onboarding data - no record returned');
       }
 
       return {
-        id: response._id,
-        ...response
+        id: response.client.id,
+        ...response.client,
+        message: response.message
       };
     } catch (error) {
       console.error('Error saving onboarding data:', error);

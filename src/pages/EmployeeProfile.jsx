@@ -1,19 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiArrowLeft, FiUser, FiCheckCircle, FiClock, FiTrendingUp, FiUsers, FiBriefcase, FiCalendar, FiFilter } from 'react-icons/fi';
+import { FiArrowLeft, FiUser, FiCheckCircle, FiClock, FiTrendingUp, FiUsers, FiBriefcase, FiCalendar, FiFilter, FiCamera } from 'react-icons/fi';
 import { api } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
 import { format, differenceInHours, differenceInMinutes, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
 
 const EmployeeProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { theme } = useTheme();
+  const { user: currentUser } = useAuth();
+  const fileInputRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [profileData, setProfileData] = useState(null);
   const [error, setError] = useState(null);
+  const [uploadingPicture, setUploadingPicture] = useState(false);
 
   // Filter states
   const [filterType, setFilterType] = useState('all'); // 'all', 'today', 'week', 'month', 'custom'
@@ -93,6 +97,65 @@ const EmployeeProfile = () => {
       console.error('Error fetching filtered stats:', err);
     } finally {
       setLoadingStats(false);
+    }
+  };
+
+  const handleProfilePictureUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload an image file');
+      return;
+    }
+
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image size should be less than 5MB');
+      return;
+    }
+
+    try {
+      setUploadingPicture(true);
+
+      // Convert to base64
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        try {
+          const base64String = reader.result;
+          const response = await api.updateProfilePicture(base64String);
+
+          // Update local state
+          setProfileData({
+            ...profileData,
+            user: {
+              ...profileData.user,
+              profilePicture: base64String
+            }
+          });
+
+          // Update user in localStorage
+          const storedUser = JSON.parse(localStorage.getItem('user'));
+          if (storedUser) {
+            storedUser.profilePicture = base64String;
+            localStorage.setItem('user', JSON.stringify(storedUser));
+          }
+
+          alert('Profile picture updated successfully!');
+        } catch (error) {
+          console.error('Error uploading profile picture:', error);
+          alert('Failed to upload profile picture: ' + error.message);
+        } finally {
+          setUploadingPicture(false);
+        }
+      };
+
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Error processing image:', error);
+      alert('Failed to process image');
+      setUploadingPicture(false);
     }
   };
 
@@ -213,12 +276,51 @@ const EmployeeProfile = () => {
         >
           <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
             {/* Avatar */}
-            <div
-              className={`w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-${getDepartmentColor(
-                user.department
-              )}-500 flex items-center justify-center text-white text-2xl sm:text-3xl font-bold`}
-            >
-              {user.name.charAt(0).toUpperCase()}
+            <div className="relative">
+              {user.profilePicture ? (
+                <img
+                  src={user.profilePicture}
+                  alt={user.name}
+                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-white dark:border-gray-700"
+                />
+              ) : (
+                <div
+                  className={`w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-${getDepartmentColor(
+                    user.department
+                  )}-500 flex items-center justify-center text-white text-2xl sm:text-3xl font-bold`}
+                >
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+              )}
+
+              {/* Upload button - only show if viewing own profile */}
+              {currentUser && currentUser.id === user._id && (
+                <>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleProfilePictureUpload}
+                    className="hidden"
+                  />
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploadingPicture}
+                    className={`absolute bottom-0 right-0 w-8 h-8 rounded-full ${
+                      theme === 'dark' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-500 hover:bg-blue-600'
+                    } text-white flex items-center justify-center transition-colors ${
+                      uploadingPicture ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                    title="Change profile picture"
+                  >
+                    {uploadingPicture ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                    ) : (
+                      <FiCamera className="text-sm" />
+                    )}
+                  </button>
+                </>
+              )}
             </div>
 
             {/* User Info */}
