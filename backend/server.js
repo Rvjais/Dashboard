@@ -15,6 +15,7 @@ const taskRoutes = require('./routes/tasks');
 const userRoutes = require('./routes/users');
 const announcementRoutes = require('./routes/announcements');
 const leaderboardRoutes = require('./routes/leaderboard');
+const clientRoutes = require('./routes/clients');
 
 const app = express();
 
@@ -47,6 +48,7 @@ app.use('/api/tasks', taskRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/announcements', announcementRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
+app.use('/api/clients', clientRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
