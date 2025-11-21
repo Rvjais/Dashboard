@@ -11,6 +11,7 @@ import TaskTable from '../components/TaskTable';
 import TaskModal from '../components/TaskModal';
 import AnnouncementModal from '../components/AnnouncementModal';
 import DepartmentChart from '../components/DepartmentChart';
+import DepartmentOverview from '../components/DepartmentOverview';
 import Leaderboard from '../components/Leaderboard';
 
 const { 
@@ -467,6 +468,7 @@ const AdminDashboard = () => {
             {activeTab === 'overview' && renderOverview()}
             {activeTab === 'tasks' && renderTasks()}
             {activeTab === 'clients' && renderClients()}
+            {activeTab === 'departments' && <DepartmentOverview currentUser={user} />}
             {activeTab === 'announcements' && (
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 sm:p-6">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
