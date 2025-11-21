@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../common/SafeIcon';
@@ -7,6 +8,7 @@ const { FiBell, FiUser, FiChevronDown } = FiIcons;
 
 const TopBar = ({ user, announcements }) => {
   const [showNotifications, setShowNotifications] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
@@ -69,7 +71,13 @@ const TopBar = ({ user, announcements }) => {
             </AnimatePresence>
           </div>
 
-          <div className="flex items-center gap-3 px-4 py-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => navigate(`/employee/${user.id}`)}
+            className="flex items-center gap-3 px-4 py-2 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors cursor-pointer"
+            title="View Profile"
+          >
             <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
               <SafeIcon icon={FiUser} className="w-4 h-4 text-white" />
             </div>
@@ -77,7 +85,7 @@ const TopBar = ({ user, announcements }) => {
               <p className="font-medium text-gray-900 dark:text-white">{user.name}</p>
               <p className="text-gray-600 dark:text-gray-400 capitalize">{user.role}</p>
             </div>
-          </div>
+          </motion.button>
         </div>
       </div>
     </header>
