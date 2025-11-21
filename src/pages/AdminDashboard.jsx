@@ -35,6 +35,8 @@ const AdminDashboard = () => {
     const saved = localStorage.getItem('sidebarCollapsed');
     return saved ? JSON.parse(saved) : false;
   });
+  const [selectedEmployee, setSelectedEmployee] = useState({});
+  const [activeClientTab, setActiveClientTab] = useState('pending');
 
   useEffect(() => {
     fetchDashboardData();
@@ -204,9 +206,6 @@ const AdminDashboard = () => {
   );
 
   const renderClients = () => {
-    const [selectedEmployee, setSelectedEmployee] = useState({});
-    const [activeClientTab, setActiveClientTab] = useState('pending');
-
     return (
       <div className="space-y-6">
         {/* Tab Navigation */}

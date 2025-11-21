@@ -88,7 +88,7 @@ const Leaderboard = () => {
         <div className="grid gap-4">
           {leaderboardData.map((user, index) => (
             <motion.div
-              key={user.id}
+              key={user._id || user.id || index}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1 }}
