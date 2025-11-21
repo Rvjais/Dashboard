@@ -78,9 +78,17 @@ const TopBar = ({ user, announcements }) => {
             className="flex items-center gap-3 px-4 py-2 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors cursor-pointer"
             title="View Profile"
           >
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
-              <SafeIcon icon={FiUser} className="w-4 h-4 text-white" />
-            </div>
+            {user.profilePicture ? (
+              <img
+                src={user.profilePicture}
+                alt={user.name}
+                className="w-8 h-8 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600"
+              />
+            ) : (
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+                <SafeIcon icon={FiUser} className="w-4 h-4 text-white" />
+              </div>
+            )}
             <div className="text-sm">
               <p className="font-medium text-gray-900 dark:text-white">{user.name}</p>
               <p className="text-gray-600 dark:text-gray-400 capitalize">{user.role}</p>

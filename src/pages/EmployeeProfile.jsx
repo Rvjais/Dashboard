@@ -12,7 +12,7 @@ const EmployeeProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, updateUser } = useAuth();
   const fileInputRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [profileData, setProfileData] = useState(null);
@@ -135,11 +135,9 @@ const EmployeeProfile = () => {
             }
           });
 
-          // Update user in localStorage
-          const storedUser = JSON.parse(localStorage.getItem('user'));
-          if (storedUser) {
-            storedUser.profilePicture = base64String;
-            localStorage.setItem('user', JSON.stringify(storedUser));
+          // Update user in AuthContext and localStorage
+          if (currentUser && currentUser.id === profileData.user._id) {
+            updateUser({ profilePicture: base64String });
           }
 
           alert('Profile picture updated successfully!');
