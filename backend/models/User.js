@@ -44,6 +44,10 @@ const userSchema = new mongoose.Schema({
   lastLogin: {
     type: Date,
     default: Date.now
+  },
+  profilePicture: {
+    type: String,
+    default: ''
   }
 }, {
   timestamps: true
@@ -67,6 +71,7 @@ userSchema.methods.toProfileJSON = function() {
     completedTasks: this.completedTasks,
     points: this.points,
     streak: this.streak,
+    profilePicture: this.profilePicture,
     createdAt: this.createdAt
   };
 };

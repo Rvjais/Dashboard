@@ -8,7 +8,7 @@ import ThemeToggle from './ThemeToggle';
 import logo from '../assets/logo.png';
 
 const {
-  FiHome, FiCheckSquare, FiBell, FiUsers, FiLogOut, FiUser, FiTrophy, FiUserPlus, FiMenu, FiChevronLeft
+  FiHome, FiCheckSquare, FiBell, FiUsers, FiLogOut, FiUser, FiTrophy, FiUserPlus, FiMenu, FiChevronLeft, FiBriefcase
 } = FiIcons;
 
 const Sidebar = ({ activeTab, setActiveTab, isAdmin, isCollapsed, setIsCollapsed }) => {
@@ -23,6 +23,7 @@ const Sidebar = ({ activeTab, setActiveTab, isAdmin, isCollapsed, setIsCollapsed
   const adminTabs = [
     { id: 'overview', label: 'Overview', icon: FiHome },
     { id: 'tasks', label: 'Tasks', icon: FiCheckSquare },
+    { id: 'clients', label: 'Clients', icon: FiBriefcase },
     { id: 'announcements', label: 'Announcements', icon: FiBell },
     { id: 'leaderboard', label: 'Leaderboard', icon: FiTrophy }
   ];

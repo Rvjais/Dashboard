@@ -181,4 +181,47 @@ router.put('/profile', auth, async (req, res) => {
   }
 });
 
+// Upload/Update profile picture
+router.put('/profile-picture', auth, async (req, res) => {
+  try {
+    // Admin users cannot update profile picture
+    if (req.user.role === 'admin' && req.user.id === 'admin-user') {
+      return res.status(403).json({ error: 'Admin cannot update profile picture' });
+    }
+
+    const { profilePicture } = req.body;
+
+    if (!profilePicture) {
+      return res.status(400).json({ error: 'Profile picture data is required' });
+    }
+
+    // Validate base64 format (should start with data:image/)
+    if (!profilePicture.startsWith('data:image/')) {
+      return res.status(400).json({ error: 'Invalid image format. Must be a base64 encoded image' });
+    }
+
+    // Optional: Check image size (base64 string length)
+    // Each base64 character represents ~6 bits, so 4 chars = 3 bytes
+    // 5MB limit = ~6.67M chars
+    const maxSize = 6670000; // ~5MB
+    if (profilePicture.length > maxSize) {
+      return res.status(400).json({ error: 'Image too large. Maximum size is 5MB' });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { $set: { profilePicture } },
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    res.json({
+      message: 'Profile picture updated successfully',
+      user: user.toProfileJSON()
+    });
+  } catch (error) {
+    console.error('Profile picture update error:', error);
+    res.status(500).json({ error: 'Profile picture update failed' });
+  }
+});
+
 module.exports = router;

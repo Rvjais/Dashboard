@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-// import { ClientOnboardingService } from '../services/clientOnboardingService';
+import { ClientOnboardingService } from '../services/clientOnboardingService';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useToast } from '../hooks/useToast';
 import { useTheme } from '../contexts/ThemeContext';

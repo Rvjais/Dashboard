@@ -110,6 +110,13 @@ export const api = {
     });
   },
 
+  updateProfilePicture: async (profilePictureBase64) => {
+    return await apiCall('/auth/profile-picture', {
+      method: 'PUT',
+      body: { profilePicture: profilePictureBase64 }
+    });
+  },
+
   logout: () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -273,6 +280,14 @@ export const api = {
   },
 
   // ==================== CLIENTS ====================
+  // Public client onboarding (no auth required)
+  submitClientOnboarding: async (clientData) => {
+    return await publicApiCall('/clients/onboard', {
+      method: 'POST',
+      body: clientData
+    });
+  },
+
   getAllClients: async () => {
     return await apiCall('/clients', {
       method: 'GET'
@@ -282,6 +297,32 @@ export const api = {
   getEmployeeClients: async (employeeId) => {
     return await apiCall(`/clients/employee/${employeeId}`, {
       method: 'GET'
+    });
+  },
+
+  getPendingClients: async () => {
+    return await apiCall('/clients/pending', {
+      method: 'GET'
+    });
+  },
+
+  approveClient: async (clientId, assignedEmployee = null) => {
+    return await apiCall(`/clients/${clientId}/approve`, {
+      method: 'PATCH',
+      body: { assignedEmployee }
+    });
+  },
+
+  rejectClient: async (clientId) => {
+    return await apiCall(`/clients/${clientId}/reject`, {
+      method: 'PATCH'
+    });
+  },
+
+  updateClient: async (clientId, updates) => {
+    return await apiCall(`/clients/${clientId}`, {
+      method: 'PATCH',
+      body: updates
     });
   },
 
