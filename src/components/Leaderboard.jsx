@@ -63,19 +63,27 @@ const Leaderboard = () => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-gradient-to-br from-white via-white to-blue-50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-4 sm:p-6 lg:p-8 backdrop-blur-lg">
-        {/* Header - Responsive Stack on Mobile */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-yellow-400 via-orange-500 to-pink-500 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform">
-              <SafeIcon icon={FiTrophy} className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
-            </div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="glass-effect rounded-3xl p-6 sm:p-8 border border-gray-200/50 dark:border-gray-700/50"
+      >
+        {/* Header - Minimal & Clean */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+          <div className="flex items-center gap-4">
+            <motion.div
+              whileHover={{ rotate: 360, scale: 1.1 }}
+              transition={{ duration: 0.6 }}
+              className="w-14 h-14 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg"
+            >
+              <SafeIcon icon={FiTrophy} className="w-7 h-7 text-white" />
+            </motion.div>
             <div>
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent">
-                Performance Leaderboard
+              <h2 className="text-2xl sm:text-3xl font-bold gradient-text">
+                Leaderboard
               </h2>
-              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
-                Top performers this period
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                Top performers
               </p>
             </div>
           </div>
@@ -83,7 +91,7 @@ const Leaderboard = () => {
           <select
             value={timeFilter}
             onChange={(e) => setTimeFilter(e.target.value)}
-            className="w-full sm:w-auto px-4 py-2.5 sm:py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm text-gray-900 dark:text-white font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all hover:shadow-md cursor-pointer"
+            className="w-full sm:w-auto px-5 py-3 border border-gray-200 dark:border-gray-700 rounded-2xl bg-white/50 dark:bg-gray-800/50 text-gray-900 dark:text-white font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-smooth cursor-pointer"
           >
             <option value="all">All Time</option>
             <option value="month">This Month</option>
@@ -91,67 +99,74 @@ const Leaderboard = () => {
           </select>
         </div>
 
-        {/* Leaderboard Items - Responsive Grid */}
-        <div className="grid gap-3 sm:gap-4 lg:gap-5">
+        {/* Leaderboard Items - Modern Minimal Design */}
+        <div className="space-y-3">
           {leaderboardData.map((user, index) => (
             <motion.div
               key={user._id || user.id || index}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className={`group relative overflow-hidden rounded-xl sm:rounded-2xl transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl ${
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05, type: "spring", stiffness: 100 }}
+              whileHover={{ scale: 1.01, y: -2 }}
+              className={`group relative overflow-hidden rounded-3xl transition-smooth hover-lift ${
                 index === 0
-                  ? 'bg-gradient-to-r from-yellow-50 via-yellow-100 to-amber-50 dark:from-yellow-900/30 dark:via-yellow-800/30 dark:to-amber-900/30 border-2 border-yellow-300 dark:border-yellow-600 shadow-lg shadow-yellow-200 dark:shadow-yellow-900/50'
+                  ? 'bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 border-2 border-yellow-300 dark:border-yellow-700 shadow-lg'
                   : index === 1
-                  ? 'bg-gradient-to-r from-gray-50 via-slate-100 to-gray-50 dark:from-gray-700/30 dark:via-slate-700/30 dark:to-gray-700/30 border-2 border-gray-300 dark:border-gray-600 shadow-lg shadow-gray-200 dark:shadow-gray-800/50'
+                  ? 'bg-gradient-to-r from-gray-50 to-slate-50 dark:from-gray-800/30 dark:to-slate-800/30 border-2 border-gray-300 dark:border-gray-600 shadow-lg'
                   : index === 2
-                  ? 'bg-gradient-to-r from-orange-50 via-orange-100 to-red-50 dark:from-orange-900/30 dark:via-orange-800/30 dark:to-red-900/30 border-2 border-orange-300 dark:border-orange-600 shadow-lg shadow-orange-200 dark:shadow-orange-900/50'
-                  : 'bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-2 border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'
+                  ? 'bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 border-2 border-orange-300 dark:border-orange-700 shadow-lg'
+                  : 'bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-gray-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-600'
               }`}
             >
-              {/* Sparkle Effect on Top 3 */}
+              {/* Shimmer Effect on Top 3 */}
               {index < 3 && (
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent transform -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000 ease-out"></div>
               )}
 
-              <div className="relative flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-4 sm:p-5 lg:p-6">
-                {/* Rank Badge */}
-                <div className={`flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 lg:w-18 lg:h-18 rounded-2xl flex items-center justify-center shadow-lg transform group-hover:rotate-12 transition-transform ${getRankBadgeColor(index + 1)}`}>
+              <div className="relative flex items-center gap-4 p-5">
+                {/* Rank Badge - Minimal */}
+                <motion.div
+                  whileHover={{ rotate: 12, scale: 1.1 }}
+                  className={`flex-shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center shadow-md ${getRankBadgeColor(index + 1)}`}
+                >
                   {getRankIcon(index + 1)}
-                </div>
+                </motion.div>
 
-                {/* User Info - Flexible on Mobile */}
-                <div className="flex-1 min-w-0 w-full sm:w-auto">
-                  <div className="flex flex-wrap items-center gap-2 mb-1">
-                    <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 dark:text-white truncate">
+                {/* User Info - Clean Layout */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate">
                       {user.name}
                     </h3>
-                    <span className="px-3 py-1 text-xs font-semibold rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md whitespace-nowrap">
+                    <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300">
                       {user.department}
                     </span>
                   </div>
-                  <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 font-medium">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     {user.completedTasks} tasks completed
                   </p>
                 </div>
 
-                {/* Points - Stack on Mobile */}
-                <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end">
-                  <div className="text-center sm:text-right">
-                    <div className="text-2xl sm:text-3xl lg:text-4xl font-black bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+                {/* Points & Streak - Compact */}
+                <div className="flex items-center gap-4">
+                  <div className="text-right">
+                    <div className="text-3xl font-bold gradient-text">
                       {user.points}
                     </div>
-                    <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-semibold">points</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 font-medium">points</div>
                   </div>
 
                   {/* Streak Badge */}
                   {user.streak > 0 && (
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 bg-gradient-to-r from-red-500 to-pink-600 rounded-full shadow-lg transform hover:scale-105 transition-transform">
-                      <SafeIcon icon={FiAward} className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
-                      <span className="text-xs sm:text-sm font-bold text-white whitespace-nowrap">
-                        {user.streak} day{user.streak > 1 ? 's' : ''}
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      className="flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full shadow-md"
+                    >
+                      <SafeIcon icon={FiAward} className="w-4 h-4 text-white" />
+                      <span className="text-sm font-bold text-white">
+                        {user.streak}d
                       </span>
-                    </div>
+                    </motion.div>
                   )}
                 </div>
               </div>
@@ -159,17 +174,21 @@ const Leaderboard = () => {
           ))}
         </div>
 
-        {/* Empty State */}
+        {/* Empty State - Minimal */}
         {leaderboardData.length === 0 && (
-          <div className="text-center py-12 sm:py-16 lg:py-20">
-            <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-4 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded-full flex items-center justify-center">
-              <SafeIcon icon={FiUsers} className="w-10 h-10 sm:w-12 sm:h-12 text-gray-500 dark:text-gray-400" />
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-16"
+          >
+            <div className="w-20 h-20 mx-auto mb-4 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
+              <SafeIcon icon={FiUsers} className="w-10 h-10 text-gray-400" />
             </div>
-            <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 font-medium">No performance data available yet.</p>
-            <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">Complete tasks to appear on the leaderboard!</p>
-          </div>
+            <p className="text-lg text-gray-600 dark:text-gray-400 font-medium">No data yet</p>
+            <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">Complete tasks to appear here!</p>
+          </motion.div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 };

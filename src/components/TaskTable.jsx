@@ -78,24 +78,24 @@ const TaskTable = ({ tasks, onEdit, onDelete, onStatusUpdate, isAdmin, currentUs
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row gap-4 p-4">
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <SafeIcon icon={FiSearch} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <SafeIcon icon={FiSearch} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
           <input
             type="text"
             placeholder="Search tasks..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full pl-12 pr-4 py-3 border border-gray-200 dark:border-gray-700 rounded-2xl bg-white/50 dark:bg-gray-800/50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-smooth"
           />
         </div>
-        <div className="relative">
-          <SafeIcon icon={FiFilter} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+        <div className="relative sm:w-48">
+          <SafeIcon icon={FiFilter} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
+            className="w-full pl-12 pr-4 py-3 border border-gray-200 dark:border-gray-700 rounded-2xl bg-white/50 dark:bg-gray-800/50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none cursor-pointer transition-smooth"
           >
             <option value="all">All Status</option>
             <option value="Pending">Pending</option>
@@ -105,15 +105,16 @@ const TaskTable = ({ tasks, onEdit, onDelete, onStatusUpdate, isAdmin, currentUs
         </div>
       </div>
 
-      {/* Mobile Card View */}
-      <div className="block lg:hidden space-y-4 px-4">
+      {/* Mobile Card View - Modern Minimal */}
+      <div className="block lg:hidden space-y-3">
         {filteredTasks.map((task, index) => (
           <motion.div
             key={task._id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05 }}
-            className="bg-white rounded-lg shadow-md p-4 border border-gray-200"
+            whileHover={{ y: -2 }}
+            className="glass-effect rounded-3xl p-5 border border-gray-200/50 dark:border-gray-700/50 hover-lift"
           >
             <div className="flex justify-between items-start mb-3">
               <h3 className="text-lg font-semibold text-gray-900">{task.title}</h3>
