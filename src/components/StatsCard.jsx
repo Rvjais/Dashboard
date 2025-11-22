@@ -6,19 +6,19 @@ const { FiTrendingUp, FiTrendingDown } = FiIcons;
 
 const StatsCard = ({ title, value, icon, color, trend }) => {
   const colorClasses = {
-    blue: 'from-blue-500 to-indigo-500',
-    green: 'from-green-500 to-emerald-500',
-    yellow: 'from-yellow-500 to-orange-500',
-    red: 'from-red-500 to-pink-500',
-    purple: 'from-purple-500 to-violet-500',
-    indigo: 'from-indigo-500 to-purple-500'
+    blue: 'bg-blue-500',
+    green: 'bg-green-500',
+    yellow: 'bg-yellow-500',
+    red: 'bg-red-500',
+    purple: 'bg-purple-500',
+    indigo: 'bg-indigo-500'
   };
 
   const isPositiveTrend = trend && trend.startsWith('+');
 
   return (
-    <div className="glass-effect rounded-3xl p-6 card-shadow border border-gray-200/50 dark:border-gray-700/50 overflow-hidden relative">
-      <div className="relative z-10">
+    <div className="glass-effect rounded-lg p-6 card-shadow border border-gray-200 dark:border-gray-700 overflow-hidden relative">
+      <div className="relative">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
             <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">{title}</p>
@@ -27,13 +27,13 @@ const StatsCard = ({ title, value, icon, color, trend }) => {
             </p>
           </div>
 
-          <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${colorClasses[color]} flex items-center justify-center shadow-lg`}>
-            <SafeIcon icon={icon} className="w-7 h-7 text-white" />
+          <div className={`w-12 h-12 rounded-lg ${colorClasses[color]} flex items-center justify-center`}>
+            <SafeIcon icon={icon} className="w-6 h-6 text-white" />
           </div>
         </div>
 
         {trend && (
-          <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${
+          <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium ${
             isPositiveTrend
               ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
               : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'

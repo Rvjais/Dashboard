@@ -2596,25 +2596,40 @@ const ClientEnrollmentForm = ({ onBack }) => {
     </div>
   );
 
-  // Render step indicator
+  // Render step indicator - Mobile friendly
   const renderStepIndicator = () => {
     const totalSteps = 16; // 15 form steps + 1 overview/submit step
+    const progress = (currentStep / totalSteps) * 100;
+
     return (
-      <div className="flex justify-center mb-8">
-        <div className="flex space-x-2">
+      <div className="mb-6 sm:mb-8">
+        <div className="flex justify-between items-center mb-2">
+          <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+            Step {currentStep} of {totalSteps}
+          </span>
+          <span className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+            {Math.round(progress)}%
+          </span>
+        </div>
+        <div className={`w-full h-2 rounded-full ${isDark ? 'bg-gray-700' : 'bg-gray-200'}`}>
+          <div
+            className="h-2 rounded-full bg-blue-600 transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        {/* Show dots on larger screens */}
+        <div className="hidden lg:flex justify-center mt-4 space-x-2">
           {Array.from({ length: totalSteps }, (_, i) => (
             <div
               key={i}
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+              className={`w-2 h-2 rounded-full ${
                 i + 1 === currentStep
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-blue-600'
                   : i + 1 < currentStep
-                  ? 'bg-green-600 text-white'
-                  : 'bg-gray-300 text-gray-600'
+                  ? 'bg-green-600'
+                  : isDark ? 'bg-gray-700' : 'bg-gray-300'
               }`}
-            >
-              {i + 1}
-            </div>
+            />
           ))}
         </div>
       </div>
@@ -3345,7 +3360,7 @@ const ClientEnrollmentForm = ({ onBack }) => {
 
   // Main component return statement
   return (
-    <div className={`max-w-4xl mx-auto p-6 ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
+    <div className={`max-w-4xl mx-auto p-4 sm:p-6 ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
       {/* Success Message */}
       {submitSuccess && (
         <div className={`mb-6 p-4 rounded ${isDark ? 'bg-green-900 border border-green-700 text-green-200' : 'bg-green-100 border border-green-400 text-green-700'}`}>
@@ -3382,25 +3397,23 @@ const ClientEnrollmentForm = ({ onBack }) => {
       {currentStep === 15 && renderStep15()}
       {currentStep === 16 && renderStep16()}
 
-      {/* Navigation */}
-      <div className="flex justify-between mt-8">
+      {/* Navigation - Mobile friendly */}
+      <div className="flex flex-col sm:flex-row gap-3 sm:justify-between mt-6 sm:mt-8">
         {currentStep > 1 && (
           <button
             type="button"
             onClick={() => setCurrentStep(prev => prev - 1)}
-            className={`px-6 py-2 rounded-md ${isDark ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-gray-300 text-gray-700 hover:bg-gray-400'}`}
+            className={`w-full sm:w-auto px-6 py-3 rounded-md ${isDark ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-gray-300 text-gray-700 hover:bg-gray-400'} transition-colors`}
           >
             Previous
           </button>
         )}
-        
-        <div className="flex-1"></div>
 
         {currentStep < 15 ? (
           <button
             type="button"
             onClick={() => setCurrentStep(prev => prev + 1)}
-            className={`px-6 py-2 rounded-md ${isDark ? 'bg-blue-700 text-white hover:bg-blue-600' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+            className={`w-full sm:w-auto px-6 py-3 rounded-md ${currentStep === 1 ? 'sm:ml-auto' : ''} ${isDark ? 'bg-blue-700 text-white hover:bg-blue-600' : 'bg-blue-600 text-white hover:bg-blue-700'} transition-colors`}
           >
             Next
           </button>
@@ -3408,7 +3421,7 @@ const ClientEnrollmentForm = ({ onBack }) => {
           <button
             type="button"
             onClick={() => setCurrentStep(prev => prev + 1)}
-            className={`px-6 py-2 rounded-md ${isDark ? 'bg-blue-700 text-white hover:bg-blue-600' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+            className={`w-full sm:w-auto px-6 py-3 rounded-md ${isDark ? 'bg-blue-700 text-white hover:bg-blue-600' : 'bg-blue-600 text-white hover:bg-blue-700'} transition-colors`}
           >
             Review & Submit
           </button>
@@ -3417,7 +3430,7 @@ const ClientEnrollmentForm = ({ onBack }) => {
             type="button"
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className={`px-6 py-2 rounded-md flex items-center gap-2 ${isDark ? 'bg-green-700 text-white hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed' : 'bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed'}`}
+            className={`w-full sm:w-auto px-6 py-3 rounded-md flex items-center justify-center gap-2 ${isDark ? 'bg-green-700 text-white hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed' : 'bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed'} transition-colors`}
           >
             {isSubmitting && <LoadingSpinner size="sm" />}
             {isSubmitting ? 'Submitting...' : 'Submit Form'}
