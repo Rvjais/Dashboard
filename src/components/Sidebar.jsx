@@ -46,7 +46,7 @@ const Sidebar = ({ activeTab, setActiveTab, isAdmin, isCollapsed, setIsCollapsed
       {/* Toggle Button */}
       <button
         onClick={toggleSidebar}
-        className="absolute -right-5 top-6 w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white rounded-full flex items-center justify-center shadow-lg z-10 transition-smooth"
+        className="absolute -right-5 top-6 w-10 h-10 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center justify-center shadow-md z-10 transition-colors"
         aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
       >
         <SafeIcon icon={isCollapsed ? FiMenu : FiChevronLeft} className="w-5 h-5" />
@@ -79,9 +79,9 @@ const Sidebar = ({ activeTab, setActiveTab, isAdmin, isCollapsed, setIsCollapsed
             <li key={tab.id}>
               <button
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} px-4 py-3.5 rounded-2xl text-left transition-smooth ${
+                className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} px-4 py-3.5 rounded-lg text-left transition-colors ${
                   activeTab === tab.id
-                    ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg'
+                    ? 'bg-blue-600 text-white'
                     : 'text-gray-600 dark:text-gray-400 hover:bg-white/60 dark:hover:bg-gray-700/60 hover:text-gray-900 dark:hover:text-white'
                 }`}
                 title={isCollapsed ? tab.label : ''}
@@ -101,7 +101,7 @@ const Sidebar = ({ activeTab, setActiveTab, isAdmin, isCollapsed, setIsCollapsed
       <div className="p-4 border-t border-gray-200/30 dark:border-gray-700/30">
         <Link
           to="/client-enroll"
-          className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} px-4 py-3.5 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-2xl transition-smooth no-underline font-medium`}
+          className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} px-4 py-3.5 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors no-underline font-medium`}
           title={isCollapsed ? 'Client Enrollment' : ''}
         >
           <SafeIcon icon={FiUserPlus} className="w-5 h-5 flex-shrink-0" />
@@ -116,7 +116,7 @@ const Sidebar = ({ activeTab, setActiveTab, isAdmin, isCollapsed, setIsCollapsed
       <div className="p-4 border-t border-gray-200/30 dark:border-gray-700/30">
         <button
           onClick={logout}
-          className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} px-4 py-3.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-2xl transition-smooth font-medium`}
+          className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} px-4 py-3.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors font-medium`}
           title={isCollapsed ? 'Logout' : ''}
         >
           <SafeIcon icon={FiLogOut} className="w-5 h-5 flex-shrink-0" />
